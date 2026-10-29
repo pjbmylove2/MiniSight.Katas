@@ -6,7 +6,7 @@
 ![.NET Framework 4.7.2](https://img.shields.io/badge/.NET%20Framework-4.7.2-512BD4)
 ![WinForms](https://img.shields.io/badge/UI-WinForms-0078D4)
 ![OpenCvSharp4](https://img.shields.io/badge/Vision-OpenCvSharp4-5C3EE8)
-![Progress](https://img.shields.io/badge/%EC%B4%88%EA%B8%89-2%2F14-orange)
+![Progress](https://img.shields.io/badge/%EC%B4%88%EA%B8%89-3%2F14-orange)
 
 ## 왜 다시 시작했나
 
@@ -37,7 +37,7 @@ flowchart LR
 
 | 단계 | 기간(목표) | 다루는 것 | 졸업 기준 | 상태 |
 |---|---|---|---|---|
-| **1 초급** | 1~2주 | `?.` `??` `=>`, 상속, 람다, 이벤트, `using`, 컬렉션, LINQ, 바이트·엔디언, `Task`, 취소, `lock` | 가짜 카메라 50줄을 안 보고 15분 안에 작성 | 🟠 진행 중 (2/14) |
+| **1 초급** | 1~2주 | `?.` `??` `=>`, 상속, 람다, 이벤트, `using`, 컬렉션, LINQ, 바이트·엔디언, `Task`, 취소, `lock` | 가짜 카메라 50줄을 안 보고 15분 안에 작성 | 🟠 진행 중 (3/14) |
 | **2 주니어** | 약 5주 | 디자인 패턴(Template Method, Factory, Adapter, Facade, Strategy), 멀티스레드 파이프라인, 영상처리, UI 스레드, TCP 통신, 비동기 로그, 테스트 | MiniSight가 가짜 장치로 촬영 → 검사 → 결과 송신 → 로그 → 안전 종료까지 동작 | ⚪ 대기 |
 | **3 시니어** | 약 6주 | Modbus TCP·시리얼, 장애 재현과 덤프 분석, 장기 구동 테스트, 성능·택트, 배포·롤백, CI, 골든 테스트, 현장 문서, ADR | 처음 보는 장애를 1시간 안에 재현·분석·보고 / 이식 계획 15분 설명 / v1.0 릴리스 | ⚪ 대기 |
 
@@ -50,6 +50,7 @@ flowchart LR
 | 2026-10-27 ~ 28 | 1회차 Day01~04: 단일 실행·전역 예외, 장치 계약, `DeviceBase`, 카메라 어댑터·팩토리 | 패턴보다 **키워드를 손으로 써 본 경험이 부족**하다는 걸 확인 → 초급 트랙을 새로 만들고 처음부터 다시 시작 |
 | 2026-10-28 | B01 `?.` `??` `throw` 식 `nameof` `=>` | `set` 없는 속성에 대입하는 것을 실행 중 예외로 착각 → 컴파일 에러 **CS0200**으로 바로잡음 |
 | 2026-10-29 | B02 `interface` `abstract` `virtual` `override` `base` `protected` | 인터페이스는 상속이 아니라 **구현**한다. `Speak()`를 `virtual`로 두지 않는 이유 = 자식이 **순서를 바꾸지 못하게** (Template Method의 핵심) |
+| 2026-10-29 | B03 `Action` `Func` 람다 | `Func<string, int>`에 인자 2개짜리 람다를 써서 CS1593 → **꺾쇠 개수 - 1 = 람다 인자 수**. `Func<T>`는 "만드는 방법"만 담아 두고 펼칠 때마다 새 객체를 만든다 (재연결 시 새 드라이버를 받는 이유) |
 
 전체 기록과 다시 확인할 질문: [Study/PROGRESS.md](Study/PROGRESS.md)
 
