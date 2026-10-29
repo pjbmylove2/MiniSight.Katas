@@ -48,8 +48,8 @@ flowchart LR
 | 날짜 | 한 것 | 배운 점 / 바로잡은 것 |
 |---|---|---|
 | 2026-10-27 ~ 28 | 1회차 Day01~04: 단일 실행·전역 예외, 장치 계약, `DeviceBase`, 카메라 어댑터·팩토리 | 패턴보다 **키워드를 손으로 써 본 경험이 부족**하다는 걸 확인 → 초급 트랙을 새로 만들고 처음부터 다시 시작 |
-| 2026-10-28 | B01 `?.` `??` `throw` 식 `nameof` `=>` | `set` 없는 속성에 대입하는 것을 실행 중 예외로 착각 → **컴파일 에러(CS0200)**로 바로잡음 |
-| 2026-10-29 | B02 `interface` `abstract` `virtual` `override` `base` `protected` | 인터페이스는 "상속"이 아니라 **"구현"**. `Speak()`를 `virtual`로 두지 않는 이유 = 자식이 **순서를 바꾸지 못하게** (Template Method의 핵심) |
+| 2026-10-28 | B01 `?.` `??` `throw` 식 `nameof` `=>` | `set` 없는 속성에 대입하는 것을 실행 중 예외로 착각 → 컴파일 에러 **CS0200**으로 바로잡음 |
+| 2026-10-29 | B02 `interface` `abstract` `virtual` `override` `base` `protected` | 인터페이스는 상속이 아니라 **구현**한다. `Speak()`를 `virtual`로 두지 않는 이유 = 자식이 **순서를 바꾸지 못하게** (Template Method의 핵심) |
 
 전체 기록과 다시 확인할 질문: [Study/PROGRESS.md](Study/PROGRESS.md)
 
