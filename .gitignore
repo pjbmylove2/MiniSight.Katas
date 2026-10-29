@@ -1,0 +1,11 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# 빌드 결과물
+bin/
+obj/
+
+# NuGet 패키지 (packages.config 기준으로 복원)
+packages/
