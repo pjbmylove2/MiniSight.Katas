@@ -1,6 +1,6 @@
-# OmniSight 4주 스터디: 집에서 MiniSight 따라 만들기
+# 시니어 SW 필드엔지니어 복습 여정: MiniSight 따라 만들기
 
-> 목표: OmniSight를 머릿속에 통째로 넣는다. 4주가 끝나면 **백지에서 다른 현장용 검사 프로그램을 설계하고, 왜 그렇게 설계했는지 면접에서 설명**할 수 있어야 한다.
+> 목표: **초급(손코딩) → 주니어(프로그램 설계·구현) → 시니어(현장 책임)** 3단계로 다시 다진다. 주니어를 졸업하면 **백지에서 다른 현장용 검사 프로그램을 설계하고 왜 그렇게 설계했는지 면접에서 설명**할 수 있고, 시니어를 졸업하면 **장애를 혼자 재현·분석·보고하고 다른 현장에 옮길 수** 있어야 한다. 전체 계획은 [00-Roadmap.md](00-Roadmap.md).
 
 ## 1. 이 스터디는 이렇게 돌아간다
 
@@ -69,13 +69,14 @@ OmniSight 실제 코드를 보여주면서 "왜 이렇게 썼는지" 설명해�
 
 | 파일 | 용도 |
 |---|---|
-| [00-Roadmap.md](00-Roadmap.md) | 4주 전체 표와 체크박스 |
+| [00-Roadmap.md](00-Roadmap.md) | 3단계(초급·주니어·시니어) 전체 표, 단계별 졸업 기준 |
 | [01-MiniSight-Spec.md](01-MiniSight-Spec.md) | 집 프로젝트의 폴더·인터페이스·NuGet·완성 단계 |
 | [PROGRESS.md](PROGRESS.md) | 날짜별 진도, 밀린 것, 질문 |
-| [Basics/](Basics/README.md) | 0주차 기초 트랙 B01~B14 (키워드 하나에 Kata 하나) |
+| [Basics/](Basics/README.md) | 1단계 초급 B01~B14 (키워드 하나에 Kata 하나) |
+| [Senior/](Senior/README.md) | 3단계 시니어 S01~S12 (프로토콜·장애 재현·배포·CI·현장 문서) |
 | [Cheatsheets/Keywords.md](Cheatsheets/Keywords.md) | 키워드·기호 한 줄 사전 (어느 B에서 배우고 어느 Day에 나오나) |
 | [FieldSkills.md](FieldSkills.md) | FA 현장 SW 필드엔지니어 역량 지도 (통신·진단·카메라·배포·소통, 수준 체크) |
-| `Days/Day01.md` ~ `Days/Day28.md` | 하루치 가이드 |
+| `Days/Day01.md` ~ `Days/Day28.md` | 2단계 주니어 하루치 가이드 |
 | [Cheatsheets/Patterns.md](Cheatsheets/Patterns.md) | OmniSight 디자인 패턴 지도 |
 | [Cheatsheets/Threading.md](Cheatsheets/Threading.md) | 스레드·큐·동기화 도구 정리 |
 | [Cheatsheets/VS2022-Debugging.md](Cheatsheets/VS2022-Debugging.md) | 디버깅 단축키·창·덤프·프로파일러 |

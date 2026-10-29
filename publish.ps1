@@ -5,7 +5,9 @@ param(
     [string]$StudySource = 'D:\박종부\00.Source\03.OCR리팩토링\OmniSight\.claude\worktrees\omnisight-study-plan-4bc7dd\Study'
 )
 
-$ErrorActionPreference = 'Stop'
+# git은 경고도 stderr로 내보낸다. Windows PowerShell 5.1에서 'Stop'이면 경고만으로 멈추므로
+# 실패 여부는 $LASTEXITCODE로 판단한다.
+$ErrorActionPreference = 'Continue'
 Set-Location -Path $PSScriptRoot
 
 if (-not (Test-Path $StudySource)) {
