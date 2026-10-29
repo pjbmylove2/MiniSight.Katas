@@ -20,6 +20,13 @@ if ($LASTEXITCODE -ge 8) {
     throw "robocopy failed: exit code $LASTEXITCODE"
 }
 
+# 비공개 이름 가리기. 스크립트가 없거나 실패하면 올리지 않는다.
+$sanitizer = Join-Path (Split-Path $PSScriptRoot -Parent) 'publish-sanitize.ps1'
+if (-not (Test-Path $sanitizer)) {
+    throw "Sanitizer not found: $sanitizer"
+}
+& $sanitizer -StudyPath (Join-Path $PSScriptRoot 'Study')
+
 git add -A
 git diff --cached --quiet
 if ($LASTEXITCODE -eq 0) {
