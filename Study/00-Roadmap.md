@@ -34,7 +34,7 @@
 |---|---|---|---|
 | ☑ | 1 | [B01](Basics/B01-NullAndArrow.md), [B02](Basics/B02-Inheritance.md) | `?.` `??` `=>` `nameof` / `interface` `abstract` `virtual` `override` |
 | ☑ | 2 | [B03](Basics/B03-ActionFunc.md), [B04](Basics/B04-Event.md) | `Action` `Func` 람다 / `event` `+=` `-=` `Invoke` |
-| ☐ | 3 | [B05](Basics/B05-UsingDispose.md), [B06](Basics/B06-Collections.md) | `using` `try/finally` `throw;` / `List` `Dictionary` `<T>` |
+| ◐ | 3 | [B05](Basics/B05-UsingDispose.md) ☑, [B06](Basics/B06-Collections.md) | `using` `try/finally` `throw;` / `List` `Dictionary` `<T>` |
 | ☐ | 4 | [B07](Basics/B07-Linq.md), [B08](Basics/B08-StringTime.md) | LINQ / `$""` `Stopwatch` `CultureInfo` |
 | ☐ | 5 | [B09](Basics/B09-SwitchPattern.md), [B10](Basics/B10-FileBytes.md) | `enum` `switch` `is` `catch when` / `File` `byte[]` 엔디언 |
 | ☐ | 6 | [B11](Basics/B11-Task.md), [B12](Basics/B12-Cancellation.md) | `Task.Run` `async` `await` / `CancellationToken` |

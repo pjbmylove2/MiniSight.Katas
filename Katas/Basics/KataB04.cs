@@ -33,8 +33,6 @@ namespace Katas.Basics
 
             bell.Rang -= Mom;
             bell.Push("아무도 없음");
-
-            bell.Rang(bell, "몰래");
         }
 
         private static void Mom(object sender, string who)
