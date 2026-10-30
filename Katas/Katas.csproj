@@ -50,6 +50,7 @@
     <Compile Include="Basics\KataB05.cs" />
     <Compile Include="Basics\KataB06.cs" />
     <Compile Include="Basics\KataB07.cs" />
+    <Compile Include="Basics\KataB08.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
