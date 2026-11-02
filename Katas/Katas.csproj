@@ -53,6 +53,7 @@
     <Compile Include="Basics\KataB08.cs" />
     <Compile Include="Basics\KataB09.cs" />
     <Compile Include="Basics\KataB10.cs" />
+    <Compile Include="Basics\KataB11.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
