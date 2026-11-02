@@ -15,7 +15,8 @@ namespace Katas
             //KataB06.Run();
             //KataB07.Run();
             //KataB08.Run();
-            KataB09.Run();
+            //KataB09.Run();
+            KataB10.Run();
             Console.ReadKey();
         }
     }

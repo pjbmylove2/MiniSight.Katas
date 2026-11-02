@@ -27,17 +27,17 @@ namespace Katas.Basics
             double[] widths = { 10.0, 10.3, -1 };
             foreach (var x in widths)
             {
-                Judge j = Check(x);
-                switch (j)
+                Judge w = Check(x);
+                switch (w)
                 {
                     case Judge.Ok:
-                        Console.WriteLine(w + " -> OK");
+                        Console.WriteLine(x + " -> OK");
                         break;
                     case Judge.Ng:
-                        Console.WriteLine(w + " -> NG (PLC에 NG 신호)");
+                        Console.WriteLine(x + " -> NG (PLC에 NG 신호)");
                         break;
                     default:
-                        Console.WriteLine(w + " -> 측정 실패 (" + j + ")");
+                        Console.WriteLine(x + " -> 측정 실패 (" + w + ")");
                         break;
                 }
             }
