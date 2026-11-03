@@ -10,7 +10,12 @@ const SKIN = path.join(__dirname, 'k-docs');
 const out = path.resolve(process.argv[2] || path.join(__dirname, 'preview-out'));
 
 function readVars() {
-    const xml = fs.readFileSync(path.join(SKIN, 'index.xml'), 'utf8');
+    // HTML 편집용 스킨은 index.xml이 없다 (옵션 없이 글자를 skin.html에 직접 쓴다)
+    const file = path.join(SKIN, 'index.xml');
+    if (!fs.existsSync(file)) {
+        return {};
+    }
+    const xml = fs.readFileSync(file, 'utf8');
     const vars = {};
     const re = /<variable>[\s\S]*?<name>([^<]+)<\/name>[\s\S]*?<default>([^<]*)<\/default>[\s\S]*?<\/variable>/g;
     let m;
@@ -74,8 +79,8 @@ function render(page) {
     } while (t !== before);
 
     // 이 화면에 없는 블록을 먼저 지우고, 남은 블록의 태그를 벗긴다
-    ['s_list', 's_article_protected', 's_notice_rep', 's_tag', 's_guest', 's_ad_div', 's_article_prev'].forEach(n => { t = drop(t, n); });
-    ['s_t3', 's_sidebar', 's_sidebar_element', 's_search', 's_tag_label', 's_article_next', 's_article_related', 's_paging'].forEach(n => { t = keep(t, n); });
+    ['s_list', 's_article_protected', 's_notice_rep', 's_page_rep', 's_tag', 's_guest', 's_ad_div', 's_article_prev'].forEach(n => { t = drop(t, n); });
+    ['s_t3', 's_sidebar', 's_sidebar_element', 's_search', 's_tag_label', 's_article_next', 's_article_related', 's_paging', 's_rp'].forEach(n => { t = keep(t, n); });
 
     t = repeat(t, 's_rctps_rep', POSTS, (inner, p) => fillVals(inner, { rctps_rep_link: '#', rctps_rep_title: p.title }));
     t = repeat(t, 's_random_tags', ['C#', 'null', 'WinForms', 'Thread', 'OpenCV', 'PLC'], (inner, n) => fillVals(inner, { tag_link: '#', tag_class: 'cloud3', tag_name: n }));
@@ -114,9 +119,8 @@ function render(page) {
     return fillVals(t, globals);
 }
 
-fs.mkdirSync(path.join(out, 'images'), { recursive: true });
+fs.mkdirSync(out, { recursive: true });
 fs.copyFileSync(path.join(SKIN, 'style.css'), path.join(out, 'style.css'));
-fs.copyFileSync(path.join(SKIN, 'images', 'script.js'), path.join(out, 'images', 'script.js'));
 ['home', 'post'].forEach(page => {
     const html = render(page);
     const left = html.match(/<\/?s_[a-z0-9_-]+>|\[##_[^\]]+_##\]/g);

@@ -1,5 +1,7 @@
 <!doctype html>
-<html lang="ko" data-default-theme="[##_var_default-theme_##]">
+<!-- K-docs 스킨 (HTML 편집용). 고칠 곳은 "고칠 곳:" 주석을 찾으면 된다.
+     고칠 곳: 기본 테마. 방문자가 고르기 전 테마 = auto(OS 따라감) / light / dark -->
+<html lang="ko" data-default-theme="auto">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,7 +10,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&amp;family=Nanum+Gothic+Coding:wght@400;700&amp;display=swap">
 <link rel="stylesheet" href="./style.css">
-<style>:root { --kp-accent-light: [##_var_accent-color_##]; }</style>
 <script>
 /* 화면이 그려지기 전에 테마를 정한다 (깜박임 방지). auto = OS 설정을 따른다 */
 (function () {
@@ -91,36 +92,36 @@
     <!-- 홈 첫 화면: 소개 + 연재 중 + 시리즈 (홈에서만 보인다, style.css의 #tt-body-index 참고) -->
     <section class="kp-hero" aria-label="소개">
       <div class="kp-hero-text">
-        <s_if_var_intro-role><span class="kp-hero-role">// [##_var_intro-role_##]</span></s_if_var_intro-role>
-        <h1 class="kp-hero-title"><s_if_var_intro-title>[##_var_intro-title_##]</s_if_var_intro-title><s_not_var_intro-title>[##_title_##]</s_not_var_intro-title></h1>
-        <p class="kp-hero-desc"><s_if_var_intro-desc>[##_var_intro-desc_##]</s_if_var_intro-desc><s_not_var_intro-desc>[##_desc_##]</s_not_var_intro-desc></p>
-        <s_if_var_intro-skills><div class="kp-skills" data-skills="[##_var_intro-skills_##]"></div></s_if_var_intro-skills>
+        <!-- 고칠 곳: 소개 (직무 한 줄, 제목, 소개 문장, 기술은 쉼표로 구분) -->
+        <span class="kp-hero-role">// FA 비전 검사 소프트웨어 엔지니어</span>
+        <h1 class="kp-hero-title">현장 C# 기록</h1>
+        <p class="kp-hero-desc">카메라·PLC·조명이 붙은 검사 장비 프로그램을 만들고 고칩니다. 현장에서 부딪힌 문제와 다시 손으로 쳐 본 코드를 정리합니다.</p>
+        <div class="kp-skills" data-skills="C#, .NET Framework, WinForms, OpenCvSharp, PLC TCP/IP, 멀티스레드"></div>
+        <!-- 고칠 곳: 버튼 주소. 포트폴리오 글이 생기면 두 번째 버튼의 주석을 푼다 -->
         <div class="kp-hero-links">
-          <s_if_var_github-url><a class="kp-btn kp-btn-primary" href="[##_var_github-url_##]">GitHub 코드 보기</a></s_if_var_github-url>
-          <s_if_var_portfolio-url><a class="kp-btn" href="[##_var_portfolio-url_##]">포트폴리오</a></s_if_var_portfolio-url>
+          <a class="kp-btn kp-btn-primary" href="https://github.com/pjbmylove2/MiniSight.Katas">GitHub 코드 보기</a>
+          <!-- <a class="kp-btn" href="/포트폴리오-글-주소">포트폴리오</a> -->
         </div>
       </div>
-      <s_if_var_now-title>
-        <a class="kp-now" href="[##_var_now-link_##]" data-current="[##_var_now-current_##]" data-total="[##_var_now-total_##]">
-          <span class="kp-label">지금 연재 중</span>
-          <strong class="kp-now-title">[##_var_now-title_##]</strong>
-          <span class="kp-now-desc">[##_var_now-desc_##]</span>
-          <span class="kp-bar" aria-hidden="true"><span class="kp-bar-fill"></span></span>
-          <span class="kp-now-count">[##_var_now-current_##] / [##_var_now-total_##] 공개</span>
-        </a>
-      </s_if_var_now-title>
+      <!-- 고칠 곳: 지금 연재 중. data-current = 공개한 편 수, data-total = 전체 편 수 (막대가 자동으로 늘어난다) -->
+      <a class="kp-now" href="/category" data-current="1" data-total="14">
+        <span class="kp-label">지금 연재 중</span>
+        <strong class="kp-now-title">C# 기초 체력 B01~B14</strong>
+        <span class="kp-now-desc">키워드 하나에 콘솔 예제 하나. null부터 Timer 카메라까지.</span>
+        <span class="kp-bar" aria-hidden="true"><span class="kp-bar-fill"></span></span>
+        <span class="kp-now-count"></span>
+      </a>
     </section>
 
-    <s_if_var_series1-title>
-      <section class="kp-series" aria-label="시리즈">
-        <h2 class="kp-section-title">시리즈</h2>
-        <div class="kp-series-grid">
-          <a class="kp-card" href="[##_var_series1-link_##]"><span class="kp-card-tag">[##_var_series1-tag_##]</span><strong>[##_var_series1-title_##]</strong><span>[##_var_series1-desc_##]</span></a>
-          <s_if_var_series2-title><a class="kp-card" href="[##_var_series2-link_##]"><span class="kp-card-tag">[##_var_series2-tag_##]</span><strong>[##_var_series2-title_##]</strong><span>[##_var_series2-desc_##]</span></a></s_if_var_series2-title>
-          <s_if_var_series3-title><a class="kp-card" href="[##_var_series3-link_##]"><span class="kp-card-tag">[##_var_series3-tag_##]</span><strong>[##_var_series3-title_##]</strong><span>[##_var_series3-desc_##]</span></a></s_if_var_series3-title>
-        </div>
-      </section>
-    </s_if_var_series1-title>
+    <!-- 고칠 곳: 시리즈 카드 3개 (href = 카테고리 주소) -->
+    <section class="kp-series" aria-label="시리즈">
+      <h2 class="kp-section-title">시리즈</h2>
+      <div class="kp-series-grid">
+        <a class="kp-card" href="/category"><span class="kp-card-tag">B01~B14</span><strong>C# 기초 체력</strong><span>키워드 하나에 콘솔 예제 하나.</span></a>
+        <a class="kp-card" href="/category"><span class="kp-card-tag">Framework</span><strong>C# Framework 만들기</strong><span>카메라·PLC를 감싸는 구조와 상태 머신.</span></a>
+        <a class="kp-card" href="/category"><span class="kp-card-tag">Vision</span><strong>머신비전 기초</strong><span>구성 요소와 검사·측정·판독·위치 보정.</span></a>
+      </div>
+    </section>
 
     <div class="kp-home-head">
       <h2 class="kp-section-title">최근 글</h2>
@@ -182,7 +183,7 @@
               <s_article_prev><a class="kp-pn kp-pn-prev" href="[##_article_prev_link_##]"><span class="kp-label">← 이전 글</span><strong>[##_article_prev_title_##]</strong></a></s_article_prev>
               <s_article_next><a class="kp-pn kp-pn-next" href="[##_article_next_link_##]"><span class="kp-label">다음 글 →</span><strong>[##_article_next_title_##]</strong></a></s_article_next>
             </nav>
-            <div class="kp-comments">[##_comment_group_##]</div>
+            <div class="kp-comments"><s_rp>[##_comment_group_##]</s_rp></div>
           </article>
           <aside class="kp-rail" aria-label="목차와 같은 카테고리 글">
             <nav class="kp-toc" aria-label="이 글의 목차" hidden>
@@ -205,14 +206,31 @@
 
     <!-- 보호글 -->
     <s_article_protected>
-      <div class="kp-protected">
-        <h1 class="kp-post-title">[##_article_rep_title_##]</h1>
-        <p>보호되어 있는 글입니다. 비밀번호를 입력하세요.</p>
-        <label class="kp-sr" for="[##_article_password_##]">비밀번호</label>
-        <input type="password" id="[##_article_password_##]" name="[##_article_password_##]" onkeydown="if (event.keyCode == 13) [##_article_dissolve_##]">
-        <button type="button" class="kp-btn kp-btn-primary" onclick="[##_article_dissolve_##]">확인</button>
-      </div>
+      <s_index_article_rep>
+        <article class="kp-row">
+          <a class="kp-row-title" href="[##_article_rep_link_##]">[##_article_rep_title_##]</a>
+          <p class="kp-row-sum">보호되어 있는 글입니다.</p>
+          <span class="kp-row-date">[##_article_rep_simple_date_##]</span>
+        </article>
+      </s_index_article_rep>
+      <s_permalink_article_rep>
+        <form class="kp-protected" onsubmit="[##_article_dissolve_##]">
+          <h1 class="kp-post-title">[##_article_rep_title_##]</h1>
+          <p>보호되어 있는 글입니다. 비밀번호를 입력하세요.</p>
+          <label class="kp-sr" for="[##_article_password_##]">비밀번호</label>
+          <input type="password" id="[##_article_password_##]" name="[##_article_password_##]" value="" placeholder="비밀번호">
+          <button type="submit" class="kp-btn kp-btn-primary">확인</button>
+        </form>
+      </s_permalink_article_rep>
     </s_article_protected>
+
+    <!-- 소개 같은 페이지 -->
+    <s_page_rep>
+      <article class="kp-post-main">
+        <h1 class="kp-post-title">[##_article_rep_title_##]</h1>
+        <div class="kp-article">[##_article_rep_desc_##]</div>
+      </article>
+    </s_page_rep>
 
     <!-- 공지사항 -->
     <s_notice_rep>
@@ -261,7 +279,126 @@
   </div>
 </footer>
 
-<script src="./images/script.js"></script>
+<script>
+/* K-docs 스킨 스크립트: 테마 선택, 기술 칩, 연재 진행 막대, 목차, 읽는 시간, 모바일 카테고리 */
+(function () {
+  'use strict';
+  var root = document.documentElement;
+
+  // 테마: 자동(OS 따라감) / 라이트 / 다크. 선택은 이 브라우저에만 저장된다
+  function currentTheme() {
+    var t = null;
+    try { t = localStorage.getItem('kp-theme'); } catch (e) { }
+    return t || root.getAttribute('data-default-theme') || 'auto';
+  }
+  function applyTheme(t) {
+    if (t === 'light' || t === 'dark') {
+      root.setAttribute('data-theme', t);
+    } else {
+      root.removeAttribute('data-theme');
+    }
+    var buttons = document.querySelectorAll('[data-theme-pick]');
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].setAttribute('aria-pressed', buttons[i].getAttribute('data-theme-pick') === t ? 'true' : 'false');
+    }
+  }
+  applyTheme(currentTheme());
+  var picks = document.querySelectorAll('[data-theme-pick]');
+  for (var p = 0; p < picks.length; p++) {
+    picks[p].addEventListener('click', function () {
+      var t = this.getAttribute('data-theme-pick');
+      try { localStorage.setItem('kp-theme', t); } catch (e) { }
+      applyTheme(t);
+    });
+  }
+
+  // 기술 칩: "C#, WinForms, ..." 글자를 칩으로 나눈다
+  var skills = document.querySelector('.kp-skills');
+  if (skills) {
+    var names = (skills.getAttribute('data-skills') || '').split(',');
+    for (var s = 0; s < names.length; s++) {
+      var name = names[s].trim();
+      if (name) {
+        var chip = document.createElement('span');
+        chip.textContent = name;
+        skills.appendChild(chip);
+      }
+    }
+  }
+
+  // 연재 진행 막대: 현재 / 전체
+  var now = document.querySelector('.kp-now');
+  if (now) {
+    var cur = parseFloat(now.getAttribute('data-current'));
+    var total = parseFloat(now.getAttribute('data-total'));
+    var fill = now.querySelector('.kp-bar-fill');
+    var count = now.querySelector('.kp-now-count');
+    if (fill && cur >= 0 && total > 0) {
+      fill.style.width = Math.min(100, Math.round(cur / total * 100)) + '%';
+    }
+    if (count && total > 0) {
+      count.textContent = cur + ' / ' + total + ' 공개';
+    }
+  }
+
+  // 글 화면: 목차와 읽는 시간
+  var article = document.querySelector('.kp-article');
+  if (article) {
+    var text = (article.textContent || '').replace(/\s+/g, '');
+    var minutes = Math.max(1, Math.round(text.length / 500));
+    var rt = document.querySelector('.kp-readtime');
+    if (rt) {
+      rt.textContent = '읽는 시간 ' + minutes + '분';
+      rt.hidden = false;
+    }
+
+    var heads = article.querySelectorAll('h2, h3');
+    var toc = document.querySelector('.kp-toc');
+    var list = document.querySelector('.kp-toc-list');
+    if (toc && list && heads.length >= 2) {
+      var links = [];
+      for (var h = 0; h < heads.length; h++) {
+        var head = heads[h];
+        if (!head.id) { head.id = 'kp-h-' + (h + 1); }
+        var li = document.createElement('li');
+        var a = document.createElement('a');
+        a.href = '#' + head.id;
+        a.textContent = head.textContent.trim();
+        if (head.tagName === 'H3') { a.className = 'kp-toc-h3'; }
+        li.appendChild(a);
+        list.appendChild(li);
+        links.push(a);
+      }
+      toc.hidden = false;
+
+      // 지금 읽는 소제목을 목차에서 강조한다
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function (entries) {
+          for (var e = 0; e < entries.length; e++) {
+            if (entries[e].isIntersecting) {
+              var id = entries[e].target.id;
+              for (var k = 0; k < links.length; k++) {
+                links[k].classList.toggle('is-active', links[k].getAttribute('href') === '#' + id);
+              }
+            }
+          }
+        }, { rootMargin: '-80px 0px -70% 0px' });
+        for (var o = 0; o < heads.length; o++) { io.observe(heads[o]); }
+      }
+    }
+  }
+
+  // 좁은 화면: 카테고리 열고 닫기
+  var toggle = document.querySelector('.kp-side-toggle');
+  var side = document.getElementById('kp-side');
+  if (toggle && side) {
+    toggle.addEventListener('click', function () {
+      var open = side.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }
+})();
+</script>
 </s_t3>
 </body>
 </html>
