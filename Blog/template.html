@@ -12,8 +12,6 @@
     --line: #d5dbe3;
     --accent: #1f5f8b;
     --accent-ink: #ffffff;
-    --naver: #03a94d;
-    --naver-ink: #ffffff;
     --done: #2f7d4f;
     --paper: #ffffff;
     --font-body: "IBM Plex Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
@@ -22,13 +20,13 @@
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       --bg: #141a21; --panel: #1c242e; --fg: #e3e8ee; --muted: #9aa7b6; --line: #2e3a47;
-      --accent: #6fb3e0; --accent-ink: #0d1820; --naver: #2fcf78; --naver-ink: #06210f;
+      --accent: #6fb3e0; --accent-ink: #0d1820;
       --done: #6cc28f; --paper: #ffffff; color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
     --bg: #141a21; --panel: #1c242e; --fg: #e3e8ee; --muted: #9aa7b6; --line: #2e3a47;
-    --accent: #6fb3e0; --accent-ink: #0d1820; --naver: #2fcf78; --naver-ink: #06210f;
+    --accent: #6fb3e0; --accent-ink: #0d1820;
     --done: #6cc28f; --paper: #ffffff; color-scheme: dark;
   }
   * { box-sizing: border-box; }
@@ -67,11 +65,6 @@
   .field output { flex: 1; min-width: 0; font-weight: 600; overflow-wrap: anywhere; }
   .field output.tags { font-weight: 400; font-family: var(--font-mono); font-size: 13px; }
 
-  .modes { display: flex; gap: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; width: fit-content; max-width: 100%; }
-  .modes button { font: inherit; font-size: 14px; border: 0; background: transparent; color: var(--fg); padding: 8px 16px; cursor: pointer; }
-  .modes button + button { border-left: 1px solid var(--line); }
-  .modes button[aria-pressed="true"][data-mode="naver"] { background: var(--naver); color: var(--naver-ink); font-weight: 600; }
-  .modes button[aria-pressed="true"][data-mode="tistory"] { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
 
   .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
   button.btn {
@@ -79,9 +72,8 @@
     border: 1px solid var(--line); background: var(--panel); color: var(--fg);
   }
   button.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
-  button.btn.primary.naver { background: var(--naver); border-color: var(--naver); color: var(--naver-ink); }
   button.btn.small { padding: 4px 10px; font-size: 13px; }
-  button.btn:focus-visible, .group button:focus-visible, .modes button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button.btn:focus-visible, .group button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .done-toggle { display: flex; align-items: center; gap: 6px; margin-left: auto; color: var(--muted); font-size: 14px; }
   .toast { font-size: 13px; color: var(--done); min-height: 1.2em; }
   .manual { width: 100%; min-height: 160px; font-family: var(--font-mono); font-size: 12px; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
@@ -105,7 +97,7 @@
 <div class="wrap">
   <header class="top">
     <h1>MiniSight 블로그 복사대</h1>
-    <p>공부 정리 글을 네이버 블로그·티스토리에 그대로 붙여넣는다.</p>
+    <p>공부 정리 글을 티스토리 HTML 모드에 그대로 붙여넣는다.</p>
   </header>
 
   <nav class="list" id="list" aria-label="글 목록"></nav>
@@ -120,21 +112,17 @@
         <label for="tags">태그</label>
         <div class="row"><output id="tags" class="tags"></output><button class="btn small" id="copyTags" type="button">태그 복사</button></div>
       </div>
-      <div class="modes" role="group" aria-label="올릴 블로그">
-        <button type="button" data-mode="naver" aria-pressed="true">네이버 블로그</button>
-        <button type="button" data-mode="tistory" aria-pressed="false">티스토리 (HTML 모드)</button>
-      </div>
       <div class="actions">
-        <button class="btn primary naver" id="copyBody" type="button">본문 복사</button>
+        <button class="btn primary" id="copyBody" type="button">HTML 코드 복사</button>
         <label class="done-toggle"><input type="checkbox" id="done"> 올렸음</label>
       </div>
       <div class="toast" id="toast" role="status" aria-live="polite"></div>
       <textarea id="manual" class="manual" readonly hidden aria-label="복사할 내용"></textarea>
-      <p class="help" id="help"></p>
+      <p class="help"><b>티스토리</b>: 글쓰기 → 오른쪽 위 "기본모드"를 "HTML"로 바꾸기 → 제목 칸에 "제목 복사" → 본문에 "HTML 코드 복사" 후 Ctrl+V.</p>
     </section>
 
     <article class="paper-wrap">
-      <p class="note" id="note"></p>
+      <p class="note">티스토리 HTML 모드에 붙여넣어질 모양</p>
       <div id="paper"></div>
     </article>
   </main>
@@ -235,115 +223,6 @@
     });
   }
 
-  // ---------- 네이버 (스마트에디터 ONE) ----------
-  // 붙여넣을 때 남는 것: 글자 크기·굵기·글자색, 표와 칸 배경색. 고정폭 코드는 네이버 소스코드 상자가 된다.
-  // 사라지는 것: 문단 여백, 목록, 인용, 접기.
-  // 그래서 여백은 빈 줄로, 목록은 "•" 글자로, 인용·답은 칸 하나짜리 표로 만든다.
-  var NV = {
-    blank: '<p style="margin:0;"><br></p>',
-    h2: 'font-size:24px;font-weight:bold;color:#1f5f8b;',
-    h3: 'font-size:19px;font-weight:bold;color:#222222;',
-    text: 'font-size:16px;color:#333333;line-height:1.8;',
-    code: 'font-family:' + MONO + ';font-size:15px;color:#c7254e;background-color:#f3f4f6;',
-    th: 'border:1px solid #d6dbe1;background-color:#eef3f8;padding:8px 10px;font-size:15px;font-weight:bold;color:#222222;',
-    td: 'border:1px solid #d6dbe1;padding:8px 10px;font-size:15px;color:#333333;',
-    box: 'border-collapse:collapse;width:100%;',
-    codePre: 'font-family:' + MONO + ';font-size:14px;line-height:1.6;margin:0;padding:14px 16px;background:#272822;color:#f8f8f2;white-space:pre;overflow-x:auto;',
-    noteCell: 'border:1px solid #d6e4f0;background-color:#f2f7fb;padding:12px 16px;',
-    label: 'font-size:13px;font-weight:bold;color:#6e7781;'
-  };
-
-  function nvInline(node) {
-    // 문단 안의 글자: <code>는 빨간 글자 + 회색 형광펜, 굵게·기울임·링크는 유지
-    var out = '';
-    node.childNodes.forEach(function (n) {
-      if (n.nodeType === 3) {
-        out += esc(n.textContent);
-      } else if (n.nodeName === 'CODE') {
-        out += '<span style="' + NV.code + '">' + esc(n.textContent) + '</span>';
-      } else if (n.nodeName === 'STRONG' || n.nodeName === 'B') {
-        out += '<b>' + nvInline(n) + '</b>';
-      } else if (n.nodeName === 'EM') {
-        out += '<i>' + nvInline(n) + '</i>';
-      } else if (n.nodeName === 'A') {
-        out += '<a href="' + esc(n.getAttribute('href') || '') + '">' + nvInline(n) + '</a>';
-      } else if (n.nodeName === 'BR') {
-        out += '<br>';
-      } else {
-        out += nvInline(n);
-      }
-    });
-    return out;
-  }
-
-  function nvPara(inner, style) {
-    return '<p style="margin:0;"><span style="' + (style || NV.text) + '">' + inner + '</span></p>';
-  }
-
-  function nvBoxTable(cellStyle, innerHtml) {
-    return '<table style="' + NV.box + '"><tbody><tr><td style="' + cellStyle + '">' + innerHtml + '</td></tr></tbody></table>';
-  }
-
-  // 네이버는 고정폭 글꼴 줄을 자체 "소스코드" 상자로 바꾼다 (2026-11-03 실제 붙여넣기에서 확인).
-  // 줄마다 나누면 상자가 줄 수만큼 생기므로, 코드 전체를 <pre> 하나로 넘겨 상자 하나에 담기게 한다.
-  function nvCode(text, lang) {
-    var label = nvPara(LANG_LABEL[lang] || lang, NV.label);
-    return label + '<pre style="' + NV.codePre + '">' + esc(text.replace(/\n$/, '')) + '</pre>';
-  }
-
-  function nvBlocks(parent) {
-    var out = [];
-    parent.childNodes.forEach(function (n) {
-      if (n.nodeType === 3) {
-        if (n.textContent.trim()) { out.push(nvPara(esc(n.textContent.trim()))); }
-        return;
-      }
-      var tag = n.nodeName;
-      if (tag === 'H1' || tag === 'H2') {
-        out.push(NV.blank + nvPara(nvInline(n), NV.h2));
-      } else if (tag === 'H3' || tag === 'H4') {
-        out.push(nvPara(nvInline(n), NV.h3));
-      } else if (tag === 'P') {
-        out.push(nvPara(nvInline(n)));
-      } else if (tag === 'UL' || tag === 'OL') {
-        var i = 0;
-        n.querySelectorAll(':scope > li').forEach(function (li) {
-          i += 1;
-          var mark = tag === 'OL' ? i + '. ' : '• ';
-          out.push(nvPara(mark + nvInline(li)));
-        });
-      } else if (tag === 'PRE') {
-        var code = n.querySelector('code');
-        var lang = code ? ((code.className.match(/language-(\S+)/) || [])[1] || '') : '';
-        out.push(nvCode(code ? code.textContent : n.textContent, lang));
-      } else if (tag === 'TABLE') {
-        var rows = '';
-        n.querySelectorAll('tr').forEach(function (tr) {
-          rows += '<tr>';
-          tr.querySelectorAll('th,td').forEach(function (c) {
-            var style = c.nodeName === 'TH' ? NV.th : NV.td;
-            rows += '<td style="' + style + '">' + nvInline(c) + '</td>';
-          });
-          rows += '</tr>';
-        });
-        out.push('<table style="border-collapse:collapse;"><tbody>' + rows + '</tbody></table>');
-      } else if (tag === 'BLOCKQUOTE') {
-        out.push(nvBoxTable(NV.noteCell, nvBlocks(n)));
-      } else if (tag === 'DETAILS') {
-        // 접기가 없으므로: 질문은 굵게, 답은 연한 칸 안에
-        var sum = n.querySelector('summary');
-        out.push(nvPara('<b>' + (sum ? nvInline(sum) : '') + '</b>', NV.text));
-        if (sum) { sum.remove(); }
-        out.push(nvBoxTable(NV.noteCell, nvBlocks(n)));
-      } else if (tag === 'HR') {
-        out.push(nvPara('──────────', 'color:#c9d1db;'));
-      } else {
-        out.push(nvBlocks(n));
-      }
-    });
-    return out.join(NV.blank);
-  }
-
   // ---------- 티스토리 (HTML 모드) ----------
   // HTML 모드는 태그를 그대로 살린다. 코드는 어두운 카드 + 언어 이름표, 표는 둥근 테두리 + 가로 스크롤.
   var TS = {
@@ -408,14 +287,14 @@
     return box.innerHTML.trim();
   }
 
-  function render(md, mode) {
+  function render(md) {
     var box = document.createElement('div');
     box.innerHTML = marked.parse(md, { gfm: true });
     // <summary> 안은 HTML이라 마크다운이 변환되지 않는다. `코드`만 직접 바꾼다.
     box.querySelectorAll('summary').forEach(function (s) {
       s.innerHTML = s.innerHTML.replace(/`([^`]+)`/g, '<code>$1</code>');
     });
-    return mode === 'naver' ? nvBlocks(box) : tsStyle(box);
+    return tsStyle(box);
   }
 
   // ---------- 화면 ----------
@@ -426,26 +305,14 @@
   var manual = document.getElementById('manual');
   var copyBody = document.getElementById('copyBody');
   var current = null;
-  var mode = 'naver';
   var toastTimer = null;
-
-  var HELP = {
-    naver: '<b>네이버</b>: 글쓰기 → 제목 칸에 "제목 복사" 붙여넣기 → 본문 칸 클릭 → "본문 복사" 후 Ctrl+V. 코드는 네이버 소스코드 상자로, 셀프 체크 답은 펼쳐진 상자로 들어간다.',
-    tistory: '<b>티스토리</b>: 글쓰기 → 오른쪽 위 "기본모드"를 "HTML"로 바꾸기 → "HTML 코드 복사" 후 Ctrl+V. 코드는 어두운 카드, 셀프 체크 답은 눌러서 펼치는 접기로 들어간다.'
-  };
-  var NOTE = {
-    naver: '네이버에 붙여넣어질 모양 (스마트에디터가 여백을 버려서 문단 사이를 빈 줄로 띄웠다)',
-    tistory: '티스토리 HTML 모드에 붙여넣어질 모양'
-  };
 
   function loadDone() { try { return JSON.parse(localStorage.getItem('posted') || '{}'); } catch (e) { return {}; } }
   function saveDone(v) { try { localStorage.setItem('posted', JSON.stringify(v)); } catch (e) { } }
-  function loadMode() { try { return localStorage.getItem('mode') || 'naver'; } catch (e) { return 'naver'; } }
-  function saveMode(v) { try { localStorage.setItem('mode', v); } catch (e) { } }
   var posted = loadDone();
 
-  // "올렸음"은 블로그마다 따로 표시한다 (예: B04 네이버만 올림)
-  function postedKey(p) { return mode + ':' + p.id; }
+  // 두 모드였을 때 저장한 "tistory:B04" 표시를 그대로 이어서 쓴다
+  function postedKey(p) { return 'tistory:' + p.id; }
 
   function say(msg) {
     toast.textContent = msg;
@@ -476,24 +343,13 @@
     });
   }
 
-  function drawMode() {
-    document.querySelectorAll('.modes button').forEach(function (b) {
-      b.setAttribute('aria-pressed', b.getAttribute('data-mode') === mode ? 'true' : 'false');
-    });
-    copyBody.textContent = mode === 'naver' ? '본문 복사 (네이버)' : 'HTML 코드 복사 (티스토리)';
-    copyBody.classList.toggle('naver', mode === 'naver');
-    document.getElementById('help').innerHTML = HELP[mode];
-    document.getElementById('note').textContent = NOTE[mode];
-  }
-
   function show(p) {
     current = p;
     document.getElementById('title').textContent = p.title;
     document.getElementById('tags').textContent = p.tags.join(', ');
-    paper.innerHTML = render(p.md, mode);
+    paper.innerHTML = render(p.md);
     doneBox.checked = !!posted[postedKey(p)];
     manual.hidden = true;
-    drawMode();
     drawList();
     try { history.replaceState(null, '', '#' + p.id); } catch (e) { }
   }
@@ -527,49 +383,9 @@
     }
   }
 
-  function copyNaver() {
-    // 서식째 복사: 미리보기 영역을 그대로 클립보드에 넣는다
-    manual.hidden = true;
-    var html = paper.innerHTML;
-    var plain = paper.innerText;
-    function fallback() {
-      var r = document.createRange();
-      r.selectNodeContents(paper);
-      var sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(r);
-      var ok = false;
-      try { ok = document.execCommand('copy'); } catch (e) { }
-      if (ok) {
-        sel.removeAllRanges();
-        say('본문 복사했다. 네이버 본문 칸에 Ctrl+V.');
-      } else {
-        say('자동 복사가 막혀서 미리보기를 선택해 두었다. Ctrl+C 하세요.');
-      }
-    }
-    if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
-      var item = new ClipboardItem({
-        'text/html': new Blob([html], { type: 'text/html' }),
-        'text/plain': new Blob([plain], { type: 'text/plain' })
-      });
-      navigator.clipboard.write([item]).then(function () { say('본문 복사했다. 네이버 본문 칸에 Ctrl+V.'); }, fallback);
-    } else {
-      fallback();
-    }
-  }
-
   document.getElementById('copyTitle').addEventListener('click', function () { copyText(current.title, '제목'); });
   document.getElementById('copyTags').addEventListener('click', function () { copyText(current.tags.join(', '), '태그'); });
-  copyBody.addEventListener('click', function () {
-    if (mode === 'naver') { copyNaver(); } else { copyText(render(current.md, 'tistory'), 'HTML 코드'); }
-  });
-  document.querySelectorAll('.modes button').forEach(function (b) {
-    b.addEventListener('click', function () {
-      mode = b.getAttribute('data-mode');
-      saveMode(mode);
-      show(current);
-    });
-  });
+  copyBody.addEventListener('click', function () { copyText(render(current.md), 'HTML 코드'); });
   doneBox.addEventListener('change', function () {
     if (doneBox.checked) { posted[postedKey(current)] = true; } else { delete posted[postedKey(current)]; }
     saveDone(posted);
@@ -580,7 +396,6 @@
     paper.textContent = '글이 없다. build-blog.js로 다시 만들어 주세요.';
     return;
   }
-  mode = loadMode() === 'tistory' ? 'tistory' : 'naver';
   var start = POSTS[0];
   var hash = (location.hash || '').slice(1);
   POSTS.forEach(function (p) { if (p.id === hash) { start = p; } });
