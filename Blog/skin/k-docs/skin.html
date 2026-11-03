@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ko" data-default-theme="[##_var_default-theme_##]">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>[##_page_title_##]</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&amp;family=Nanum+Gothic+Coding:wght@400;700&amp;display=swap">
+<link rel="stylesheet" href="./style.css">
+<style>:root { --kp-accent-light: [##_var_accent-color_##]; }</style>
+<script>
+/* 화면이 그려지기 전에 테마를 정한다 (깜박임 방지). auto = OS 설정을 따른다 */
+(function () {
+  var d = document.documentElement;
+  var t = null;
+  try { t = localStorage.getItem('kp-theme'); } catch (e) { }
+  t = t || d.getAttribute('data-default-theme') || 'auto';
+  if (t === 'light' || t === 'dark') { d.setAttribute('data-theme', t); }
+})();
+</script>
+</head>
+<body id="[##_body_id_##]">
+<s_t3>
+<a class="kp-skip" href="#kp-main">본문 바로가기</a>
+
+<header class="kp-header">
+  <div class="kp-header-in">
+    <a class="kp-logo" href="[##_blog_link_##]"><span class="kp-logo-mark">K&gt;_</span><span class="kp-logo-text">[##_title_##]</span></a>
+    <nav class="kp-menu" aria-label="블로그 메뉴">[##_blog_menu_##]</nav>
+    <div class="kp-tools">
+      <s_search>
+        <div class="kp-search">
+          <label class="kp-sr" for="kp-search-input">블로그 검색</label>
+          <input id="kp-search-input" type="search" name="[##_search_name_##]" value="[##_search_text_##]" placeholder="검색" onkeypress="if (event.keyCode == 13) { [##_search_onclick_submit_##] }">
+        </div>
+      </s_search>
+      <div class="kp-seg" role="group" aria-label="화면 테마">
+        <button type="button" data-theme-pick="auto">자동</button>
+        <button type="button" data-theme-pick="light">라이트</button>
+        <button type="button" data-theme-pick="dark">다크</button>
+      </div>
+      <button type="button" class="kp-side-toggle" aria-controls="kp-side" aria-expanded="false">카테고리</button>
+    </div>
+  </div>
+</header>
+
+<div class="kp-wrap">
+
+  <aside id="kp-side" class="kp-side" aria-label="카테고리와 사이드바">
+    <s_sidebar>
+      <s_sidebar_element>
+        <!-- 카테고리 -->
+        <div class="kp-box kp-cat">
+          <h2 class="kp-box-title">카테고리</h2>
+          [##_category_list_##]
+        </div>
+      </s_sidebar_element>
+      <s_sidebar_element>
+        <!-- 최근 글 -->
+        <div class="kp-box">
+          <h2 class="kp-box-title">최근 글</h2>
+          <ul class="kp-mini-list">
+            <s_rctps_rep>
+              <li><a href="[##_rctps_rep_link_##]">[##_rctps_rep_title_##]</a></li>
+            </s_rctps_rep>
+          </ul>
+        </div>
+      </s_sidebar_element>
+      <s_sidebar_element>
+        <!-- 태그 -->
+        <div class="kp-box">
+          <h2 class="kp-box-title">태그</h2>
+          <div class="kp-tags">
+            <s_random_tags><a href="[##_tag_link_##]" class="[##_tag_class_##]">[##_tag_name_##]</a></s_random_tags>
+          </div>
+        </div>
+      </s_sidebar_element>
+      <s_sidebar_element>
+        <!-- 방문자 -->
+        <div class="kp-box kp-count">
+          <h2 class="kp-box-title">방문자</h2>
+          <p>전체 [##_count_total_##] · 오늘 [##_count_today_##] · 어제 [##_count_yesterday_##]</p>
+        </div>
+      </s_sidebar_element>
+    </s_sidebar>
+  </aside>
+
+  <main id="kp-main" class="kp-main">
+
+    <!-- 홈 첫 화면: 소개 + 연재 중 + 시리즈 (홈에서만 보인다, style.css의 #tt-body-index 참고) -->
+    <section class="kp-hero" aria-label="소개">
+      <div class="kp-hero-text">
+        <s_if_var_intro-role><span class="kp-hero-role">// [##_var_intro-role_##]</span></s_if_var_intro-role>
+        <h1 class="kp-hero-title"><s_if_var_intro-title>[##_var_intro-title_##]</s_if_var_intro-title><s_not_var_intro-title>[##_title_##]</s_not_var_intro-title></h1>
+        <p class="kp-hero-desc"><s_if_var_intro-desc>[##_var_intro-desc_##]</s_if_var_intro-desc><s_not_var_intro-desc>[##_desc_##]</s_not_var_intro-desc></p>
+        <s_if_var_intro-skills><div class="kp-skills" data-skills="[##_var_intro-skills_##]"></div></s_if_var_intro-skills>
+        <div class="kp-hero-links">
+          <s_if_var_github-url><a class="kp-btn kp-btn-primary" href="[##_var_github-url_##]">GitHub 코드 보기</a></s_if_var_github-url>
+          <s_if_var_portfolio-url><a class="kp-btn" href="[##_var_portfolio-url_##]">포트폴리오</a></s_if_var_portfolio-url>
+        </div>
+      </div>
+      <s_if_var_now-title>
+        <a class="kp-now" href="[##_var_now-link_##]" data-current="[##_var_now-current_##]" data-total="[##_var_now-total_##]">
+          <span class="kp-label">지금 연재 중</span>
+          <strong class="kp-now-title">[##_var_now-title_##]</strong>
+          <span class="kp-now-desc">[##_var_now-desc_##]</span>
+          <span class="kp-bar" aria-hidden="true"><span class="kp-bar-fill"></span></span>
+          <span class="kp-now-count">[##_var_now-current_##] / [##_var_now-total_##] 공개</span>
+        </a>
+      </s_if_var_now-title>
+    </section>
+
+    <s_if_var_series1-title>
+      <section class="kp-series" aria-label="시리즈">
+        <h2 class="kp-section-title">시리즈</h2>
+        <div class="kp-series-grid">
+          <a class="kp-card" href="[##_var_series1-link_##]"><span class="kp-card-tag">[##_var_series1-tag_##]</span><strong>[##_var_series1-title_##]</strong><span>[##_var_series1-desc_##]</span></a>
+          <s_if_var_series2-title><a class="kp-card" href="[##_var_series2-link_##]"><span class="kp-card-tag">[##_var_series2-tag_##]</span><strong>[##_var_series2-title_##]</strong><span>[##_var_series2-desc_##]</span></a></s_if_var_series2-title>
+          <s_if_var_series3-title><a class="kp-card" href="[##_var_series3-link_##]"><span class="kp-card-tag">[##_var_series3-tag_##]</span><strong>[##_var_series3-title_##]</strong><span>[##_var_series3-desc_##]</span></a></s_if_var_series3-title>
+        </div>
+      </section>
+    </s_if_var_series1-title>
+
+    <div class="kp-home-head">
+      <h2 class="kp-section-title">최근 글</h2>
+    </div>
+
+    [##_revenue_list_upper_##]
+
+    <!-- 카테고리 · 검색 · 태그 목록 -->
+    <s_list>
+      <section class="kp-list" aria-label="글 목록">
+        <div class="kp-list-head">
+          <h1 class="kp-list-title">[##_list_conform_##]</h1>
+          <span class="kp-list-count">글 [##_list_count_##]개</span>
+        </div>
+        <s_list_empty><p class="kp-empty">글이 없습니다.</p></s_list_empty>
+        <ol class="kp-rows">
+          <s_list_rep>
+            <li class="kp-row">
+              <a class="kp-row-cat" href="[##_list_rep_category_link_##]">[##_list_rep_category_##]</a>
+              <a class="kp-row-title" href="[##_list_rep_link_##]">[##_list_rep_title_text_##]</a>
+              <p class="kp-row-sum">[##_list_rep_summary_##]</p>
+              <span class="kp-row-date">[##_list_rep_regdate_##]</span>
+            </li>
+          </s_list_rep>
+        </ol>
+      </section>
+    </s_list>
+
+    <s_article_rep>
+      <!-- 홈 목록의 글 한 개 -->
+      <s_index_article_rep>
+        <article class="kp-row">
+          <a class="kp-row-cat" href="[##_article_rep_category_link_##]">[##_article_rep_category_##]</a>
+          <a class="kp-row-title" href="[##_article_rep_link_##]">[##_article_rep_title_##]</a>
+          <p class="kp-row-sum">[##_article_rep_summary_##]</p>
+          <span class="kp-row-date">[##_article_rep_simple_date_##]</span>
+        </article>
+      </s_index_article_rep>
+
+      <!-- 글 본문 화면 -->
+      <s_permalink_article_rep>
+        <div class="kp-post">
+          <article class="kp-post-main">
+            <div class="kp-post-cat"><a href="[##_article_rep_category_link_##]">[##_article_rep_category_##]</a></div>
+            <h1 class="kp-post-title">[##_article_rep_title_##]</h1>
+            <div class="kp-post-meta"><span>[##_article_rep_simple_date_##]</span><span class="kp-readtime" hidden></span></div>
+            <s_ad_div>
+              <div class="kp-admin">
+                <a href="[##_s_ad_m_link_##]">수정</a>
+                <a href="#" onclick="[##_s_ad_s2_onclick_##]">[##_s_ad_s2_label_##]</a>
+                <a href="#" onclick="[##_s_ad_d_onclick_##]">삭제</a>
+              </div>
+            </s_ad_div>
+            <div class="kp-article">[##_article_rep_desc_##]</div>
+            <s_tag_label>
+              <div class="kp-post-tags"><span class="kp-label">태그</span>[##_tag_label_rep_##]</div>
+            </s_tag_label>
+            <nav class="kp-prevnext" aria-label="이전 글과 다음 글">
+              <s_article_prev><a class="kp-pn kp-pn-prev" href="[##_article_prev_link_##]"><span class="kp-label">← 이전 글</span><strong>[##_article_prev_title_##]</strong></a></s_article_prev>
+              <s_article_next><a class="kp-pn kp-pn-next" href="[##_article_next_link_##]"><span class="kp-label">다음 글 →</span><strong>[##_article_next_title_##]</strong></a></s_article_next>
+            </nav>
+            <div class="kp-comments">[##_comment_group_##]</div>
+          </article>
+          <aside class="kp-rail" aria-label="목차와 같은 카테고리 글">
+            <nav class="kp-toc" aria-label="이 글의 목차" hidden>
+              <span class="kp-label">목차</span>
+              <ol class="kp-toc-list"></ol>
+            </nav>
+            <s_article_related>
+              <section class="kp-related">
+                <span class="kp-label">[##_article_rep_category_##]의 다른 글</span>
+                <ol>
+                  <s_article_related_rep><li><a href="[##_article_related_rep_link_##]">[##_article_related_rep_title_##]</a></li></s_article_related_rep>
+                </ol>
+                <a class="kp-related-more" href="[##_article_rep_category_link_##]">카테고리 전체 보기</a>
+              </section>
+            </s_article_related>
+          </aside>
+        </div>
+      </s_permalink_article_rep>
+    </s_article_rep>
+
+    <!-- 보호글 -->
+    <s_article_protected>
+      <div class="kp-protected">
+        <h1 class="kp-post-title">[##_article_rep_title_##]</h1>
+        <p>보호되어 있는 글입니다. 비밀번호를 입력하세요.</p>
+        <label class="kp-sr" for="[##_article_password_##]">비밀번호</label>
+        <input type="password" id="[##_article_password_##]" name="[##_article_password_##]" onkeydown="if (event.keyCode == 13) [##_article_dissolve_##]">
+        <button type="button" class="kp-btn kp-btn-primary" onclick="[##_article_dissolve_##]">확인</button>
+      </div>
+    </s_article_protected>
+
+    <!-- 공지사항 -->
+    <s_notice_rep>
+      <article class="kp-post-main kp-notice">
+        <div class="kp-post-cat">공지사항</div>
+        <h1 class="kp-post-title">[##_notice_rep_title_##]</h1>
+        <div class="kp-post-meta"><span>[##_notice_rep_simple_date_##]</span></div>
+        <div class="kp-article">[##_notice_rep_desc_##]</div>
+      </article>
+    </s_notice_rep>
+
+    <!-- 태그 클라우드 (/tag) -->
+    <s_tag>
+      <section class="kp-taglog">
+        <h1 class="kp-list-title">태그</h1>
+        <div class="kp-tags kp-tags-big">
+          <s_tag_rep><a href="[##_tag_link_##]" class="[##_tag_class_##]">[##_tag_name_##]</a></s_tag_rep>
+        </div>
+      </section>
+    </s_tag>
+
+    <!-- 방명록 -->
+    <s_guest>
+      <section class="kp-guest">
+        <h1 class="kp-list-title">방명록</h1>
+        [##_guestbook_group_##]
+      </section>
+    </s_guest>
+
+    <s_paging>
+      <nav class="kp-paging" aria-label="페이지">
+        <a [##_prev_page_##] class="kp-page-prev [##_no_more_prev_##]">이전</a>
+        <s_paging_rep><a [##_paging_rep_link_##] class="kp-page-num">[##_paging_rep_link_num_##]</a></s_paging_rep>
+        <a [##_next_page_##] class="kp-page-next [##_no_more_next_##]">다음</a>
+      </nav>
+    </s_paging>
+
+    [##_revenue_list_lower_##]
+  </main>
+</div>
+
+<footer class="kp-footer">
+  <div class="kp-footer-in">
+    <span>[##_title_##]</span>
+    <span class="kp-footer-links"><a href="[##_rss_url_##]">RSS</a><a href="[##_taglog_link_##]">태그</a><a href="[##_guestbook_link_##]">방명록</a></span>
+  </div>
+</footer>
+
+<script src="./images/script.js"></script>
+</s_t3>
+</body>
+</html>
