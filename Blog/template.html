@@ -337,14 +337,33 @@
     });
   }
 
-  function render(md) {
+  // 글 끝 상자: GitHub 전체 코드 링크 + 시리즈 전체 보기 (build-blog.js가 post.code·seriesLink를 채운다)
+  // 링크 색은 넣지 않는다: 스킨이 라이트/다크에 맞는 포인트 색으로 칠한다
+  function tsFooter(post) {
+    var lines = [];
+    if (post.code && post.code.length) {
+      var links = post.code.map(function (c) {
+        return '<a href="' + esc(c.url) + '" target="_blank" rel="noopener">' + esc(c.name) + '</a>';
+      }).join(' · ');
+      lines.push('<p style="margin:0 0 6px;"><b>전체 코드 (GitHub)</b> · ' + links + '</p>');
+    }
+    if (post.seriesLink) {
+      lines.push('<p style="margin:0;"><b>시리즈</b> · <a href="' + esc(post.seriesLink) + '">' + esc(post.seriesName) + ' 전체 글 보기</a></p>');
+    }
+    if (!lines.length) {
+      return '';
+    }
+    return '\n<div style="margin:36px 0 0;padding:14px 18px;border:1px solid #dfe5ec;border-radius:10px;background:#f4f8fb;font-size:15px;line-height:1.8;">' + lines.join('') + '</div>';
+  }
+
+  function render(post) {
     var box = document.createElement('div');
-    box.innerHTML = marked.parse(md, { gfm: true });
+    box.innerHTML = marked.parse(post.md, { gfm: true });
     // <summary> 안은 HTML이라 마크다운이 변환되지 않는다. `코드`만 직접 바꾼다.
     box.querySelectorAll('summary').forEach(function (s) {
       s.innerHTML = s.innerHTML.replace(/`([^`]+)`/g, '<code>$1</code>');
     });
-    return tsStyle(box);
+    return tsStyle(box) + tsFooter(post);
   }
 
   // ---------- 화면 ----------
@@ -397,7 +416,7 @@
     current = p;
     document.getElementById('title').textContent = p.title;
     document.getElementById('tags').textContent = p.tags.join(', ');
-    paper.innerHTML = render(p.md);
+    paper.innerHTML = render(p);
     doneBox.checked = !!posted[postedKey(p)];
     manual.hidden = true;
     drawList();
@@ -435,7 +454,7 @@
 
   document.getElementById('copyTitle').addEventListener('click', function () { copyText(current.title, '제목'); });
   document.getElementById('copyTags').addEventListener('click', function () { copyText(current.tags.join(', '), '태그'); });
-  copyBody.addEventListener('click', function () { copyText(render(current.md), 'HTML 코드'); });
+  copyBody.addEventListener('click', function () { copyText(render(current), 'HTML 코드'); });
   doneBox.addEventListener('change', function () {
     if (doneBox.checked) { posted[postedKey(current)] = true; } else { delete posted[postedKey(current)]; }
     saveDone(posted);

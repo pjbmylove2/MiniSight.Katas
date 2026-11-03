@@ -11,10 +11,30 @@ const STUDY = path.join(REPO, 'Study');
 const TEMPLATE = path.join(__dirname, 'template.html');
 const SANITIZER = path.join(REPO, '..', 'publish-sanitize.ps1');
 
+// 글 끝에 붙는 "전체 코드" 링크의 GitHub 주소 (이 저장소의 main 브랜치)
+const GITHUB_BLOB = 'https://github.com/pjbmylove2/MiniSight.Katas/blob/main/';
+
+// codeDir: 이 저장소 안 Kata 코드 폴더 (Kata{글번호}*.cs를 찾는다)
+// seriesName / seriesLink: 글 끝 "시리즈 전체 보기" 링크 = 티스토리 카테고리 이름과 주소
 const SECTIONS = [
-    { id: 'basics', label: '1단계 · 초급', series: 'C# 기초', dir: 'Basics', pattern: /^B\d{2}-.*\.md$/, enabled: true },
+    { id: 'basics', label: '1단계 · 초급', series: 'C# 기초', dir: 'Basics', pattern: /^B\d{2}-.*\.md$/, enabled: true,
+      codeDir: 'Katas/Basics', seriesName: 'C# 기초 체력', seriesLink: '/category/C%23/C%23%20%EA%B8%B0%EC%B4%88%20%EC%B2%B4%EB%A0%A5' },
     { id: 'junior', label: '2단계 · 주니어', series: 'C# 주니어', dir: 'Days', pattern: /^Day\d{2}\.md$/, enabled: false },
 ];
+
+function findCode(sec, id) {
+    if (!sec.codeDir) {
+        return [];
+    }
+    const dir = path.join(REPO, sec.codeDir);
+    if (!fs.existsSync(dir)) {
+        return [];
+    }
+    return fs.readdirSync(dir)
+        .filter(f => f.startsWith('Kata' + id) && f.endsWith('.cs'))
+        .sort()
+        .map(f => ({ name: f, url: GITHUB_BLOB + sec.codeDir + '/' + f }));
+}
 
 function loadForbidden() {
     // 가리기 목록은 저장소 밖 publish-sanitize.ps1에만 있다. 이름을 이 파일에 적지 않으려고 거기서 읽는다.
@@ -91,7 +111,11 @@ function build(outPath) {
                 title: makeTitle(h1, sec.series),
                 tags: makeTags(h1),
                 md: cleanBody(raw),
+                code: [],
+                seriesName: sec.seriesName || '',
+                seriesLink: sec.seriesLink || '',
             };
+            post.code = findCode(sec, post.id);
             const hit = (post.title + '\n' + post.md).match(forbidden);
             if (hit) {
                 throw new Error(f + '에 공개하면 안 되는 이름이 남아 있다: ' + hit[0]);

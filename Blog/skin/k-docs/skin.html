@@ -106,8 +106,11 @@
           <!-- <a class="kp-btn" href="/포트폴리오-글-주소">포트폴리오</a> -->
         </div>
       </div>
-      <!-- 고칠 곳: 지금 연재 중. data-current = 공개한 편 수, data-total = 전체 편 수 (막대가 자동으로 늘어난다) -->
-      <a class="kp-now" href="/category" data-current="1" data-total="14">
+      <!-- 고칠 곳: 지금 연재 중.
+           data-category = 연재를 모으는 티스토리 카테고리 이름 (왼쪽 카테고리에 보이는 글자 그대로).
+           공개한 편 수와 주소는 그 카테고리에서 자동으로 읽는다. data-total = 전체 편 수.
+           data-current는 자동으로 못 읽을 때만 쓰는 예비 값 -->
+      <a class="kp-now" href="/category" data-category="C# 기초 체력" data-current="0" data-total="14">
         <span class="kp-label">지금 연재 중</span>
         <strong class="kp-now-title">C# 기초 체력 B01~B14</strong>
         <span class="kp-now-desc">키워드 하나에 콘솔 예제 하나. null부터 Timer 카메라까지.</span>
@@ -116,13 +119,13 @@
       </a>
     </section>
 
-    <!-- 고칠 곳: 시리즈 카드 3개 (href = 카테고리 주소) -->
+    <!-- 고칠 곳: 시리즈 카드 3개. data-category = 카테고리 이름 (주소는 자동으로 찾는다) -->
     <section class="kp-series" aria-label="시리즈">
       <h2 class="kp-section-title">시리즈</h2>
       <div class="kp-series-grid">
-        <a class="kp-card" href="/category"><span class="kp-card-tag">B01~B14</span><strong>C# 기초 체력</strong><span>키워드 하나에 콘솔 예제 하나.</span></a>
-        <a class="kp-card" href="/category"><span class="kp-card-tag">Framework</span><strong>C# Framework 만들기</strong><span>카메라·PLC를 감싸는 구조와 상태 머신.</span></a>
-        <a class="kp-card" href="/category"><span class="kp-card-tag">Vision</span><strong>머신비전 기초</strong><span>구성 요소와 검사·측정·판독·위치 보정.</span></a>
+        <a class="kp-card" href="/category" data-category="C# 기초 체력"><span class="kp-card-tag">B01~B14</span><strong>C# 기초 체력</strong><span>키워드 하나에 콘솔 예제 하나.</span></a>
+        <a class="kp-card" href="/category" data-category="C# Framework 만들기"><span class="kp-card-tag">Framework</span><strong>C# Framework 만들기</strong><span>카메라·PLC를 감싸는 구조와 상태 머신.</span></a>
+        <a class="kp-card" href="/category" data-category="머신비전(Machine Vision)"><span class="kp-card-tag">Vision</span><strong>머신비전 기초</strong><span>구성 요소와 검사·측정·판독·위치 보정.</span></a>
       </div>
     </section>
 
@@ -333,18 +336,45 @@
     }
   }
 
-  // 연재 진행 막대: 현재 / 전체
+  // 카테고리 이름 → 주소: 왼쪽 카테고리 목록에서 같은 이름의 링크를 찾는다
+  function categoryHref(name) {
+    var links = document.querySelectorAll('.kp-cat a');
+    for (var i = 0; i < links.length; i++) {
+      var text = links[i].textContent.replace(/\(\d+\)/, '').replace(/\s+/g, ' ').trim();
+      if (text === name) { return links[i].getAttribute('href'); }
+    }
+    return null;
+  }
+  var linked = document.querySelectorAll('[data-category]');
+  for (var li2 = 0; li2 < linked.length; li2++) {
+    var catHref = categoryHref(linked[li2].getAttribute('data-category'));
+    if (catHref) { linked[li2].setAttribute('href', catHref); }
+  }
+
+  // 연재 진행 막대: 공개한 편 수는 연재 카테고리 페이지의 "글 N개"를 읽어 온다 (홈에서만)
   var now = document.querySelector('.kp-now');
   if (now) {
-    var cur = parseFloat(now.getAttribute('data-current'));
     var total = parseFloat(now.getAttribute('data-total'));
     var fill = now.querySelector('.kp-bar-fill');
     var count = now.querySelector('.kp-now-count');
-    if (fill && cur >= 0 && total > 0) {
-      fill.style.width = Math.min(100, Math.round(cur / total * 100)) + '%';
-    }
-    if (count && total > 0) {
-      count.textContent = cur + ' / ' + total + ' 공개';
+    var showProgress = function (cur) {
+      if (fill && cur >= 0 && total > 0) {
+        fill.style.width = Math.min(100, Math.round(cur / total * 100)) + '%';
+      }
+      if (count && total > 0) {
+        count.textContent = cur + ' / ' + total + ' 공개';
+      }
+    };
+    showProgress(parseFloat(now.getAttribute('data-current')) || 0);
+    var nowHref = now.getAttribute('href');
+    if (document.body.id === 'tt-body-index' && window.fetch && nowHref && nowHref !== '/category') {
+      fetch(nowHref, { credentials: 'same-origin' })
+        .then(function (res) { return res.text(); })
+        .then(function (html) {
+          var m = html.match(/kp-list-count">\s*글\s*(\d+)\s*개/);
+          if (m) { showProgress(parseInt(m[1], 10)); }
+        })
+        .catch(function () { });
     }
   }
 
