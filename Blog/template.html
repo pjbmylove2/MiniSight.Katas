@@ -149,13 +149,20 @@
   GROUPS.forEach(function (g) { g.posts.forEach(function (p) { POSTS.push(p); }); });
 
   var MONO = "D2Coding, Consolas, 'Courier New', monospace";
+  var VS_FONT = "'Cascadia Mono', Consolas, D2Coding, monospace";
 
   // 붙여넣으면 블로그가 CSS 클래스를 버리므로, 모든 모양은 style 속성으로 직접 넣는다.
-  // 코드 색: 문법 강조 결과(hljs 클래스)를 글자색으로 바꾼다. 티스토리의 어두운 코드 상자용.
-  var CODE_COLORS = {
-    keyword: '#ff7b72', built_in: '#ffa657', type: '#ffa657', literal: '#79c0ff', number: '#79c0ff',
-    string: '#a5d6ff', comment: '#8b949e', meta: '#8b949e', title: '#d2a8ff', params: '#e6edf3', attr: '#79c0ff'
+  // 코드 색: Visual Studio 2022 다크 테마와 같은 색. 티스토리 코드 상자용.
+  var VS = {
+    bg: '#1e1e1e', text: '#dcdcdc', keyword: '#569cd6', control: '#d8a0df', type: '#4ec9b0',
+    method: '#dcdcaa', string: '#d69d85', comment: '#57a64a', number: '#b5cea8', meta: '#9b9b9b'
   };
+  var CODE_COLORS = {
+    keyword: VS.keyword, built_in: VS.keyword, literal: VS.keyword, type: VS.type, number: VS.number,
+    string: VS.string, comment: VS.comment, meta: VS.meta, attr: VS.keyword
+  };
+  // VS는 흐름 제어 키워드(if, return 등)만 보라색으로 칠한다
+  var CONTROL = /^(if|else|for|foreach|while|do|switch|case|default|break|continue|return|throw|try|catch|finally|goto|yield|await)$/;
 
   var LANG_LABEL = { csharp: 'C#', cs: 'C#', c: 'C', text: '실행 결과', '': '코드' };
 
@@ -172,12 +179,60 @@
     box.querySelectorAll('span').forEach(function (sp) {
       var kind = (sp.className.match(/hljs-([a-z_]+)/) || [])[1];
       var color = CODE_COLORS[kind];
+      if (kind === 'keyword' && CONTROL.test(sp.textContent)) {
+        color = VS.control;
+      } else if (kind === 'title') {
+        color = /function_/.test(sp.className) ? VS.method : VS.type;
+      }
       sp.removeAttribute('class');
       if (color) {
-        sp.setAttribute('style', 'color:' + color + ';' + (kind === 'comment' ? 'font-style:italic;' : ''));
+        sp.setAttribute('style', 'color:' + color + ';');
       }
     });
+    colorIdentifiers(box);
     return box.innerHTML;
+  }
+
+  // highlight.js는 C#에서 쓰는 쪽의 타입·메서드 이름을 칠하지 않는다. VS처럼 보이게 간단한 규칙으로 칠한다.
+  //  - 이름 뒤에 "(" → 메서드 (노랑)
+  //  - 대문자로 시작하고, 앞에 new가 있거나 뒤에 . < 또는 변수 이름이 오면 → 타입 (청록)
+  function colorIdentifiers(box) {
+    var walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
+    var nodes = [];
+    while (walker.nextNode()) {
+      var n = walker.currentNode;
+      var colored = false;
+      for (var p = n.parentNode; p && p !== box; p = p.parentNode) {
+        if (p.getAttribute && p.getAttribute('style')) { colored = true; }
+      }
+      if (!colored) { nodes.push(n); }
+    }
+    nodes.forEach(function (node) {
+      var s = node.textContent;
+      var prev = node.previousSibling ? node.previousSibling.textContent : '';
+      var next = node.nextSibling ? node.nextSibling.textContent : '';
+      var re = /[A-Za-z_]\w*/g;
+      var html = '';
+      var last = 0;
+      var m;
+      while ((m = re.exec(s)) !== null) {
+        var before = prev + s.slice(0, m.index);
+        var after = s.slice(re.lastIndex) + next;
+        var color = null;
+        if (/^[A-Z]/.test(m[0]) && (/new\s+$/.test(before) || /^\s*[.<]/.test(after) || /^\s+[A-Za-z_]/.test(after))) {
+          color = VS.type;
+        } else if (/^\s*\(/.test(after)) {
+          color = VS.method;
+        }
+        html += esc(s.slice(last, m.index));
+        html += color ? '<span style="color:' + color + ';">' + esc(m[0]) + '</span>' : esc(m[0]);
+        last = re.lastIndex;
+      }
+      html += esc(s.slice(last));
+      var t = document.createElement('template');
+      t.innerHTML = html;
+      node.replaceWith(t.content);
+    });
   }
 
   // ---------- 네이버 (스마트에디터 ONE) ----------
@@ -303,10 +358,9 @@
     th: 'background:#f0f4f8;color:#14212e;font-weight:700;text-align:left;padding:10px 14px;border:0;border-bottom:1px solid #dfe5ec;white-space:nowrap;',
     td: 'padding:10px 14px;color:#2b2f36;border:0;border-top:1px solid #edf1f5;vertical-align:top;line-height:1.6;',
     quote: 'margin:0 0 18px;padding:12px 16px;border-left:4px solid #1f5f8b;background:#f4f8fb;color:#2b2f36;border-radius:0 8px 8px 0;',
-    codeCard: 'margin:0 0 22px;border-radius:10px;overflow:hidden;background:#0d1117;box-shadow:0 1px 3px rgba(0,0,0,.12);',
-    codeBar: 'display:flex;align-items:center;gap:6px;padding:8px 14px;background:#161b22;border-bottom:1px solid #30363d;font-family:' + MONO + ';font-size:12px;color:#8b949e;',
-    dot: 'display:inline-block;width:10px;height:10px;border-radius:50%;',
-    pre: 'margin:0;padding:16px 18px;background:#0d1117;color:#e6edf3;overflow-x:auto;font-family:' + MONO + ';font-size:14px;line-height:1.65;tab-size:4;border:0;border-radius:0;',
+    codeCard: 'margin:0 0 22px;border-radius:6px;overflow:hidden;background:' + VS.bg + ';border:1px solid #3f3f46;',
+    codeBar: 'padding:6px 14px;background:#2d2d30;border-bottom:1px solid #3f3f46;font-family:' + VS_FONT + ';font-size:12px;color:#cccccc;',
+    pre: 'margin:0;padding:14px 18px;background:' + VS.bg + ';color:' + VS.text + ';overflow-x:auto;font-family:' + VS_FONT + ';font-size:14px;line-height:1.55;tab-size:4;border:0;border-radius:0;',
     preCode: 'font-family:inherit;font-size:inherit;color:inherit;background:none;padding:0;white-space:pre;',
     output: 'margin:0 0 22px;border-radius:10px;overflow:hidden;border:1px solid #dfe5ec;background:#f8fafc;',
     outputBar: 'padding:7px 14px;background:#eef2f6;border-bottom:1px solid #dfe5ec;font-size:12px;font-weight:700;color:#5c6878;',
@@ -321,11 +375,7 @@
       return '<div style="' + TS.output + '"><div style="' + TS.outputBar + '">▶ 실행 결과</div>' +
         '<pre style="' + TS.outputPre + '"><code style="' + TS.preCode + '">' + esc(text) + '</code></pre></div>';
     }
-    var dots = ['#ff5f56', '#ffbd2e', '#27c93f'].map(function (c) {
-      return '<span style="' + TS.dot + 'background:' + c + ';"></span>';
-    }).join('');
-    return '<div style="' + TS.codeCard + '"><div style="' + TS.codeBar + '">' + dots +
-      '<span style="margin-left:8px;">' + esc(LANG_LABEL[lang] || lang) + '</span></div>' +
+    return '<div style="' + TS.codeCard + '"><div style="' + TS.codeBar + '">' + esc(LANG_LABEL[lang] || lang) + '</div>' +
       '<pre style="' + TS.pre + '"><code style="' + TS.preCode + '">' + highlight(text, lang) + '</code></pre></div>';
   }
 
