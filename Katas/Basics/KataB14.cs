@@ -30,7 +30,7 @@ namespace Katas.Basics
 
         public void Stop()
         {
-            _timer.Change(Timeout.Infinite, Timeout.Infinite);
+            _timer?.Change(Timeout.Infinite, Timeout.Infinite);
         }
 
         public void Dispose()
@@ -66,7 +66,7 @@ namespace Katas.Basics
 
                 cam.Start();
                 remote.Token.WaitHandle.WaitOne();
-                cam.Stop();
+                cam?.Stop();
                 Console.WriteLine("[스레드 " + Thread.CurrentThread.ManagedThreadId + "] Main: 5장 받고 멈춤");
             }
         }

@@ -58,6 +58,7 @@
     <Compile Include="Basics\KataB12Bad.cs" />
     <Compile Include="Basics\KataB13.cs" />
     <Compile Include="Basics\KataB14.cs" />
+    <Compile Include="Day01\KataDay01.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
