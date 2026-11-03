@@ -1,0 +1,326 @@
+<title>MiniSight 블로그 복사대</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  /* Layout: 왼쪽 글 목록 + 오른쪽 "블로그 종이" 미리보기. 미리보기 = 붙여넣을 결과 그대로 */
+  :root {
+    --bg: #eef1f4;
+    --panel: #ffffff;
+    --fg: #1d2530;
+    --muted: #5c6878;
+    --line: #d5dbe3;
+    --accent: #1f5f8b;
+    --accent-ink: #ffffff;
+    --done: #2f7d4f;
+    --paper: #ffffff;
+    --font-body: "IBM Plex Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    --font-mono: "JetBrains Mono", Consolas, "D2Coding", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141a21; --panel: #1c242e; --fg: #e3e8ee; --muted: #9aa7b6; --line: #2e3a47;
+      --accent: #6fb3e0; --accent-ink: #0d1820; --done: #6cc28f; --paper: #ffffff; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141a21; --panel: #1c242e; --fg: #e3e8ee; --muted: #9aa7b6; --line: #2e3a47;
+    --accent: #6fb3e0; --accent-ink: #0d1820; --done: #6cc28f; --paper: #ffffff; color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; }
+  .wrap {
+    max-width: 1180px; margin: 0 auto;
+    padding-block: 24px 48px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 24px; align-items: start;
+  }
+  header.top { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; }
+  header.top h1 { margin: 0; font-size: 22px; font-weight: 700; text-wrap: balance; }
+  header.top p { margin: 0; color: var(--muted); }
+
+  nav.list { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: flex; flex-direction: column; gap: 16px; }
+  .group h2 { margin: 0 0 6px; font-size: 12px; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+  .group ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  .group button {
+    width: 100%; text-align: left; border: 0; background: transparent; color: var(--fg);
+    font: inherit; padding: 7px 10px; border-radius: 6px; cursor: pointer;
+    display: grid; grid-template-columns: 42px minmax(0, 1fr) 14px; gap: 6px; align-items: center;
+  }
+  .group button:hover { background: var(--panel); }
+  .group button[aria-current="true"] { background: var(--accent); color: var(--accent-ink); }
+  .group .pid { font-family: var(--font-mono); font-size: 12px; font-weight: 600; }
+  .group .pname { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 14px; }
+  .group .mark { font-size: 12px; color: var(--done); }
+  .group button[aria-current="true"] .mark { color: inherit; }
+
+  main { min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+  .bar { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .field label { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
+  .field .row { display: flex; gap: 8px; align-items: center; min-width: 0; }
+  .field output { flex: 1; min-width: 0; font-weight: 600; overflow-wrap: anywhere; }
+  .field output.tags { font-weight: 400; font-family: var(--font-mono); font-size: 13px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  button.btn {
+    font: inherit; font-size: 14px; border-radius: 7px; padding: 8px 14px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--panel); color: var(--fg);
+  }
+  button.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  button.btn.small { padding: 4px 10px; font-size: 13px; }
+  button.btn:focus-visible, .group button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .done-toggle { display: flex; align-items: center; gap: 6px; margin-left: auto; color: var(--muted); font-size: 14px; }
+  .toast { font-size: 13px; color: var(--done); min-height: 1.2em; }
+  .help { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .help b { color: var(--fg); }
+
+  .paper-wrap { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 28px clamp(16px, 4vw, 40px); overflow-x: auto; color: #222; }
+  .paper-wrap .note { font-size: 12px; color: #6b7280; margin: 0 0 16px; font-family: var(--font-body); }
+
+  @media (max-width: 760px) {
+    .wrap { grid-template-columns: minmax(0, 1fr); }
+    nav.list { position: static; flex-direction: row; overflow-x: auto; gap: 16px; padding-bottom: 4px; }
+    .group { flex: 0 0 auto; }
+    .group ul { flex-direction: row; }
+    .group button { width: auto; grid-template-columns: auto auto; }
+    .group .pname { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1>MiniSight 블로그 복사대</h1>
+    <p>공부 정리 글을 네이버 블로그·티스토리에 그대로 붙여넣는다.</p>
+  </header>
+
+  <nav class="list" id="list" aria-label="글 목록"></nav>
+
+  <main>
+    <section class="bar">
+      <div class="field">
+        <label for="title">제목</label>
+        <div class="row"><output id="title"></output><button class="btn small" id="copyTitle" type="button">제목 복사</button></div>
+      </div>
+      <div class="field">
+        <label for="tags">태그</label>
+        <div class="row"><output id="tags" class="tags"></output><button class="btn small" id="copyTags" type="button">태그 복사</button></div>
+      </div>
+      <div class="actions">
+        <button class="btn primary" id="copyRich" type="button">본문 복사 (네이버 · 티스토리 기본모드)</button>
+        <button class="btn" id="copyMd" type="button">마크다운 복사 (티스토리 마크다운 모드)</button>
+        <label class="done-toggle"><input type="checkbox" id="done"> 올렸음</label>
+      </div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      <p class="help"><b>네이버</b>: 글쓰기 → 제목 칸에 제목 붙여넣기 → 본문 칸 클릭 → Ctrl+V. <b>티스토리</b>: 기본모드면 같은 방법, 마크다운 모드면 "마크다운 복사"를 붙여넣는다.</p>
+    </section>
+
+    <article class="paper-wrap">
+      <p class="note">아래가 붙여넣어질 모양이다 (블로그는 흰 바탕이라 미리보기도 흰 바탕).</p>
+      <div id="paper"></div>
+    </article>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script>
+(function () {
+  var GROUPS = /*__POSTS__*/[];
+  var POSTS = [];
+  GROUPS.forEach(function (g) { g.posts.forEach(function (p) { POSTS.push(p); }); });
+
+  // 붙여넣으면 블로그가 CSS 클래스를 버리므로, 모든 모양은 style 속성으로 직접 넣는다.
+  var MONO = "Consolas, 'D2Coding', 'Courier New', monospace";
+  var S = {
+    h2: 'font-size:22px;font-weight:700;color:#111;margin:36px 0 14px;padding-bottom:6px;border-bottom:2px solid #1f5f8b;',
+    h3: 'font-size:18px;font-weight:700;color:#111;margin:28px 0 10px;',
+    p: 'font-size:16px;line-height:1.85;color:#222;margin:0 0 14px;',
+    li: 'font-size:16px;line-height:1.85;color:#222;margin:0 0 4px;',
+    ul: 'margin:0 0 14px;padding-left:24px;',
+    table: 'border-collapse:collapse;margin:0 0 18px;font-size:15px;',
+    th: 'border:1px solid #c9d1db;background:#eef3f8;padding:7px 10px;text-align:left;color:#111;',
+    td: 'border:1px solid #c9d1db;padding:7px 10px;color:#222;vertical-align:top;',
+    blockquote: 'margin:0 0 16px;padding:10px 14px;border-left:4px solid #1f5f8b;background:#f4f7fa;color:#333;',
+    code: 'font-family:' + MONO + ';font-size:14px;background:#f1f3f5;color:#a3214f;padding:1px 5px;border-radius:3px;',
+    pre: 'font-family:' + MONO + ';font-size:14px;line-height:1.6;background:#f6f8fa;border:1px solid #dde3ea;border-radius:6px;padding:14px 16px;margin:0 0 18px;color:#1f2328;white-space:pre;',
+    q: 'font-size:16px;line-height:1.85;color:#111;margin:18px 0 6px;font-weight:700;',
+    a: 'font-size:16px;line-height:1.85;color:#222;margin:0 0 14px;padding-left:12px;border-left:3px solid #c9d1db;'
+  };
+
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  // 코드 블록: 공백을 &nbsp;로, 줄바꿈을 <br>로 바꿔야 붙여넣은 뒤에도 들여쓰기가 남는다.
+  function codeBlock(text) {
+    var lines = text.replace(/\n$/, '').split('\n').map(function (line) {
+      return esc(line).replace(/ /g, '&nbsp;').replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+    });
+    var div = document.createElement('div');
+    div.setAttribute('style', S.pre.replace('white-space:pre;', ''));
+    div.innerHTML = lines.join('<br>');
+    return div;
+  }
+
+  function renderPaper(md) {
+    var box = document.createElement('div');
+    box.innerHTML = marked.parse(md, { gfm: true });
+
+    box.querySelectorAll('pre').forEach(function (pre) {
+      var code = pre.querySelector('code');
+      pre.replaceWith(codeBlock(code ? code.textContent : pre.textContent));
+    });
+
+    // 접는 Q&A(<details>)는 네이버가 지원하지 않아서 질문/답 문단으로 편다.
+    box.querySelectorAll('details').forEach(function (d) {
+      var frag = document.createDocumentFragment();
+      var sum = d.querySelector('summary');
+      var q = document.createElement('p');
+      q.setAttribute('style', S.q);
+      q.innerHTML = sum ? sum.innerHTML : '';
+      frag.appendChild(q);
+      if (sum) { sum.remove(); }
+      var a = document.createElement('div');
+      a.setAttribute('style', S.a);
+      while (d.firstChild) { a.appendChild(d.firstChild); }
+      frag.appendChild(a);
+      d.replaceWith(frag);
+    });
+
+    Object.keys(S).forEach(function (tag) {
+      if (tag === 'pre' || tag === 'q' || tag === 'a') { return; }
+      box.querySelectorAll(tag).forEach(function (el) {
+        if (tag === 'p' && el.parentElement && el.parentElement.getAttribute('style') === S.a) {
+          el.setAttribute('style', 'margin:0 0 8px;font-size:16px;line-height:1.85;');
+          return;
+        }
+        el.setAttribute('style', S[tag]);
+      });
+    });
+    box.querySelectorAll('ol').forEach(function (el) { el.setAttribute('style', S.ul); });
+    box.querySelectorAll('a').forEach(function (el) { el.setAttribute('style', 'color:#1f5f8b;'); });
+    return box.innerHTML;
+  }
+
+  var listEl = document.getElementById('list');
+  var paper = document.getElementById('paper');
+  var toast = document.getElementById('toast');
+  var doneBox = document.getElementById('done');
+  var current = null;
+  var toastTimer = null;
+
+  function loadDone() { try { return JSON.parse(localStorage.getItem('posted') || '{}'); } catch (e) { return {}; } }
+  function saveDone(v) { try { localStorage.setItem('posted', JSON.stringify(v)); } catch (e) { } }
+  var posted = loadDone();
+
+  function say(msg) {
+    toast.textContent = msg;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.textContent = ''; }, 4000);
+  }
+
+  function drawList() {
+    listEl.innerHTML = '';
+    GROUPS.forEach(function (g) {
+      var sec = document.createElement('div');
+      sec.className = 'group';
+      sec.innerHTML = '<h2>' + esc(g.label) + '</h2><ul></ul>';
+      var ul = sec.querySelector('ul');
+      g.posts.forEach(function (p) {
+        var li = document.createElement('li');
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('aria-current', current && current.id === p.id ? 'true' : 'false');
+        var name = p.title.replace(/^\[[^\]]+\]\s*/, '');
+        b.innerHTML = '<span class="pid">' + esc(p.id) + '</span><span class="pname">' + esc(name) + '</span><span class="mark">' + (posted[p.id] ? '✓' : '') + '</span>';
+        b.title = p.title;
+        b.addEventListener('click', function () { show(p); });
+        li.appendChild(b);
+        ul.appendChild(li);
+      });
+      listEl.appendChild(sec);
+    });
+  }
+
+  function show(p) {
+    current = p;
+    document.getElementById('title').textContent = p.title;
+    document.getElementById('tags').textContent = p.tags.join(', ');
+    paper.innerHTML = renderPaper(p.md);
+    doneBox.checked = !!posted[p.id];
+    drawList();
+    try { history.replaceState(null, '', '#' + p.id); } catch (e) { }
+  }
+
+  function selectNode(node) {
+    var r = document.createRange();
+    r.selectNodeContents(node);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(r);
+    return sel;
+  }
+
+  function copyText(text, label) {
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('style', 'position:fixed;left:-9999px;top:0;');
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { }
+      ta.remove();
+      say(ok ? label + ' 복사했다.' : '복사가 막혔다. 텍스트를 직접 선택해 Ctrl+C 하세요.');
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { say(label + ' 복사했다.'); }, fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  function copyRich() {
+    var html = paper.innerHTML;
+    var plain = paper.innerText;
+    function fallback() {
+      var sel = selectNode(paper);
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { }
+      if (ok) {
+        sel.removeAllRanges();
+        say('본문 복사했다. 블로그 본문 칸에 Ctrl+V.');
+      } else {
+        say('자동 복사가 막혀서 본문을 선택해 두었다. Ctrl+C 하세요.');
+      }
+    }
+    if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+      var item = new ClipboardItem({
+        'text/html': new Blob([html], { type: 'text/html' }),
+        'text/plain': new Blob([plain], { type: 'text/plain' })
+      });
+      navigator.clipboard.write([item]).then(function () { say('본문 복사했다. 블로그 본문 칸에 Ctrl+V.'); }, fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  document.getElementById('copyTitle').addEventListener('click', function () { copyText(current.title, '제목'); });
+  document.getElementById('copyTags').addEventListener('click', function () { copyText(current.tags.join(', '), '태그'); });
+  document.getElementById('copyMd').addEventListener('click', function () { copyText(current.md, '마크다운'); });
+  document.getElementById('copyRich').addEventListener('click', copyRich);
+  doneBox.addEventListener('change', function () {
+    if (doneBox.checked) { posted[current.id] = true; } else { delete posted[current.id]; }
+    saveDone(posted);
+    drawList();
+  });
+
+  if (POSTS.length === 0) {
+    paper.textContent = '글이 없다. build-blog.js로 다시 만들어 주세요.';
+    return;
+  }
+  var start = POSTS[0];
+  var hash = (location.hash || '').slice(1);
+  POSTS.forEach(function (p) { if (p.id === hash) { start = p; } });
+  show(start);
+})();
+</script>
