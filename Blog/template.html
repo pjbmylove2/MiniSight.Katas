@@ -1,4 +1,4 @@
-<title>MiniSight 블로그 복사대</title>
+<title>K-프로그래밍 글공방</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -80,6 +80,27 @@
   .help { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.7; }
   .help b { color: var(--fg); }
 
+  /* 새 글 편집 칸 */
+  .new-btn { width: 100%; font: inherit; font-size: 14px; font-weight: 600; text-align: left; padding: 7px 10px; border-radius: 6px; cursor: pointer; border: 1px dashed var(--line); background: transparent; color: var(--accent); }
+  .new-btn:hover { background: var(--panel); }
+  .new-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .panel-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+  .panel-head h2 { margin: 0; font-size: 16px; font-weight: 700; }
+  .panel-head span { font-size: 12px; color: var(--muted); }
+  input.text, textarea.edit {
+    width: 100%; min-width: 0; font: inherit; font-size: 14px; color: var(--fg); background: var(--bg);
+    border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px;
+  }
+  input.text:focus-visible, textarea.edit:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  input.text[readonly] { background: transparent; border-color: transparent; padding-left: 0; font-weight: 600; font-size: 15px; }
+  input.text.tags[readonly] { font-weight: 400; font-family: var(--font-mono); font-size: 13px; }
+  textarea.edit { resize: vertical; line-height: 1.6; }
+  textarea.notes { min-height: 140px; }
+  textarea.md { min-height: 320px; font-family: var(--font-mono); font-size: 13px; }
+  .ai-status { font-size: 13px; color: var(--muted); min-height: 1.2em; }
+  button.btn:disabled { opacity: .5; cursor: default; }
+  button.btn.danger { margin-left: auto; color: #b42318; }
+
   .paper-wrap { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 28px clamp(16px, 4vw, 40px); overflow-x: auto; color: #222; }
   .paper-wrap .note { font-size: 12px; color: #6b7280; margin: 0 0 16px; font-family: var(--font-body); }
 
@@ -96,29 +117,55 @@
 
 <div class="wrap">
   <header class="top">
-    <h1>MiniSight 블로그 복사대</h1>
-    <p>공부 정리 글을 티스토리 HTML 모드에 그대로 붙여넣는다.</p>
+    <h1>K-프로그래밍 글공방</h1>
+    <p>공부 메모를 블로그 글로 다듬고, 티스토리 HTML 모드에 그대로 붙여넣는다.</p>
   </header>
 
   <nav class="list" id="list" aria-label="글 목록"></nav>
 
   <main>
+    <section class="bar" id="draftPanel" hidden>
+      <div class="panel-head"><h2>글 재료</h2><span>새 글은 이 브라우저에만 저장된다</span></div>
+      <div class="field">
+        <label for="notes">공부 메모 (정리 안 된 내용, 코드, 실행 결과 그대로)</label>
+        <textarea id="notes" class="edit notes" placeholder="예: event는 바깥에서 += -= 만 된다. Invoke는 부른 스레드에서 실행. 구독 해제 안 하면 메모리 누수..."></textarea>
+      </div>
+      <div class="field">
+        <label for="ask">추가 요청 (선택)</label>
+        <input id="ask" class="text" type="text" placeholder="예: 초보자 눈높이로, 예제 코드 하나 더, 자기 점검 문제 3개">
+      </div>
+      <div class="actions">
+        <button class="btn primary" id="aiDraft" type="button" disabled>메모로 초안 만들기</button>
+        <button class="btn" id="aiPolish" type="button" disabled>본문 다듬기</button>
+        <button class="btn" id="aiMeta" type="button" disabled>제목·태그 추천</button>
+        <button class="btn" id="aiStop" type="button" hidden>멈추기</button>
+        <button class="btn" id="aiUndo" type="button" hidden>되돌리기</button>
+        <button class="btn small danger" id="delDraft" type="button">이 글 삭제</button>
+      </div>
+      <div class="ai-status" id="aiStatus" role="status" aria-live="polite">AI 연결 확인 중…</div>
+      <div class="field">
+        <label for="body">본문 (마크다운 · 고치면 아래 미리보기가 바로 바뀐다)</label>
+        <textarea id="body" class="edit md" placeholder="&quot;메모로 초안 만들기&quot;를 누르거나 직접 쓴다. ## 소제목, ```csharp 코드, ```text 실행 결과, 표, &lt;details&gt; 문답을 쓸 수 있다."></textarea>
+      </div>
+    </section>
+
     <section class="bar">
       <div class="field">
         <label for="title">제목</label>
-        <div class="row"><output id="title"></output><button class="btn small" id="copyTitle" type="button">제목 복사</button></div>
+        <div class="row"><input id="title" class="text" type="text" readonly><button class="btn small" id="copyTitle" type="button">제목 복사</button></div>
       </div>
       <div class="field">
-        <label for="tags">태그</label>
-        <div class="row"><output id="tags" class="tags"></output><button class="btn small" id="copyTags" type="button">태그 복사</button></div>
+        <label for="tags">태그 (쉼표로 구분)</label>
+        <div class="row"><input id="tags" class="text tags" type="text" readonly><button class="btn small" id="copyTags" type="button">태그 복사</button></div>
       </div>
       <div class="actions">
         <button class="btn primary" id="copyBody" type="button">HTML 코드 복사</button>
+        <button class="btn" id="toDraft" type="button">이 글 편집하기 (새 글로 복사)</button>
         <label class="done-toggle"><input type="checkbox" id="done"> 올렸음</label>
       </div>
       <div class="toast" id="toast" role="status" aria-live="polite"></div>
       <textarea id="manual" class="manual" readonly hidden aria-label="복사할 내용"></textarea>
-      <p class="help"><b>티스토리</b>: 글쓰기 → 오른쪽 위 "기본모드"를 "HTML"로 바꾸기 → 제목 칸에 "제목 복사" → 본문에 "HTML 코드 복사" 후 Ctrl+V.</p>
+      <p class="help"><b>티스토리</b>: 글쓰기 → 오른쪽 위 "기본모드"를 "HTML"로 바꾸기 → 제목 칸에 "제목 복사" → 본문에 "HTML 코드 복사" 후 Ctrl+V → 아래 태그 칸에 "태그 복사" 후 Ctrl+V.</p>
     </section>
 
     <article class="paper-wrap">
@@ -373,12 +420,33 @@
   var doneBox = document.getElementById('done');
   var manual = document.getElementById('manual');
   var copyBody = document.getElementById('copyBody');
+  var titleEl = document.getElementById('title');
+  var tagsEl = document.getElementById('tags');
+  var toDraftBtn = document.getElementById('toDraft');
+  var draftPanel = document.getElementById('draftPanel');
+  var notesEl = document.getElementById('notes');
+  var askEl = document.getElementById('ask');
+  var bodyEl = document.getElementById('body');
+  var aiStatus = document.getElementById('aiStatus');
+  var aiDraftBtn = document.getElementById('aiDraft');
+  var aiPolishBtn = document.getElementById('aiPolish');
+  var aiMetaBtn = document.getElementById('aiMeta');
+  var aiStopBtn = document.getElementById('aiStop');
+  var aiUndoBtn = document.getElementById('aiUndo');
+  var delDraftBtn = document.getElementById('delDraft');
   var current = null;
   var toastTimer = null;
 
   function loadDone() { try { return JSON.parse(localStorage.getItem('posted') || '{}'); } catch (e) { return {}; } }
   function saveDone(v) { try { localStorage.setItem('posted', JSON.stringify(v)); } catch (e) { } }
   var posted = loadDone();
+
+  // 새 글(초안)은 이 브라우저 localStorage에만 둔다. 다른 기기·다른 주소에서 연 페이지에는 보이지 않는다.
+  function loadDrafts() { try { return JSON.parse(localStorage.getItem('drafts') || '[]'); } catch (e) { return []; } }
+  var drafts = loadDrafts();
+  function saveDrafts() { try { localStorage.setItem('drafts', JSON.stringify(drafts)); } catch (e) { } }
+
+  function isDraft(p) { return !!p && p.kind === 'draft'; }
 
   // 두 모드였을 때 저장한 "tistory:B04" 표시를 그대로 이어서 쓴다
   function postedKey(p) { return 'tistory:' + p.id; }
@@ -389,39 +457,332 @@
     toastTimer = setTimeout(function () { toast.textContent = ''; }, 5000);
   }
 
+  function listButton(p, pid, name) {
+    var li = document.createElement('li');
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('aria-current', current && current.id === p.id ? 'true' : 'false');
+    b.innerHTML = '<span class="pid">' + esc(pid) + '</span><span class="pname">' + esc(name) + '</span><span class="mark">' + (posted[postedKey(p)] ? '✓' : '') + '</span>';
+    b.title = p.title || name;
+    b.addEventListener('click', function () { show(p); });
+    li.appendChild(b);
+    return li;
+  }
+
   function drawList() {
     listEl.innerHTML = '';
+    var mine = document.createElement('div');
+    mine.className = 'group';
+    mine.innerHTML = '<h2>새 글</h2><ul></ul>';
+    var mineUl = mine.querySelector('ul');
+    var newLi = document.createElement('li');
+    var newBtn = document.createElement('button');
+    newBtn.type = 'button';
+    newBtn.className = 'new-btn';
+    newBtn.textContent = '+ 새 글 쓰기';
+    newBtn.addEventListener('click', function () { show(newDraft({})); });
+    newLi.appendChild(newBtn);
+    mineUl.appendChild(newLi);
+    drafts.forEach(function (d) { mineUl.appendChild(listButton(d, '초안', d.title || '(제목 없음)')); });
+    listEl.appendChild(mine);
+
     GROUPS.forEach(function (g) {
       var sec = document.createElement('div');
       sec.className = 'group';
       sec.innerHTML = '<h2>' + esc(g.label) + '</h2><ul></ul>';
       var ul = sec.querySelector('ul');
       g.posts.forEach(function (p) {
-        var li = document.createElement('li');
-        var b = document.createElement('button');
-        b.type = 'button';
-        b.setAttribute('aria-current', current && current.id === p.id ? 'true' : 'false');
-        var name = p.title.replace(/^\[[^\]]+\]\s*/, '');
-        b.innerHTML = '<span class="pid">' + esc(p.id) + '</span><span class="pname">' + esc(name) + '</span><span class="mark">' + (posted[postedKey(p)] ? '✓' : '') + '</span>';
-        b.title = p.title;
-        b.addEventListener('click', function () { show(p); });
-        li.appendChild(b);
-        ul.appendChild(li);
+        ul.appendChild(listButton(p, p.id, p.title.replace(/^\[[^\]]+\]\s*/, '')));
       });
       listEl.appendChild(sec);
     });
   }
 
+  function newDraft(from) {
+    var d = {
+      kind: 'draft',
+      id: 'd' + Date.now().toString(36),
+      title: from.title || '',
+      tags: (from.tags || []).slice(),
+      notes: '',
+      md: from.md || '',
+      code: from.code || [],
+      seriesName: from.seriesName || '',
+      seriesLink: from.seriesLink || ''
+    };
+    drafts.unshift(d);
+    saveDrafts();
+    return d;
+  }
+
   function show(p) {
     current = p;
-    document.getElementById('title').textContent = p.title;
-    document.getElementById('tags').textContent = p.tags.join(', ');
+    var draft = isDraft(p);
+    titleEl.value = p.title;
+    tagsEl.value = p.tags.join(', ');
+    titleEl.readOnly = !draft;
+    tagsEl.readOnly = !draft;
+    draftPanel.hidden = !draft;
+    toDraftBtn.hidden = draft;
+    if (draft) {
+      notesEl.value = p.notes || '';
+      bodyEl.value = p.md || '';
+      askEl.value = '';
+      aiUndoBtn.hidden = true;
+      resetDelete();
+    }
     paper.innerHTML = render(p);
     doneBox.checked = !!posted[postedKey(p)];
     manual.hidden = true;
     drawList();
     try { history.replaceState(null, '', '#' + p.id); } catch (e) { }
   }
+
+  // 본문을 고칠 때마다 미리보기를 다시 그리면 무거우니, 손을 멈춘 뒤 한 번 그린다
+  var renderTimer = null;
+  function refreshSoon() {
+    clearTimeout(renderTimer);
+    renderTimer = setTimeout(function () { if (current) { paper.innerHTML = render(current); } }, 300);
+  }
+
+  function parseTags(text) {
+    return text.split(/[,\n]/).map(function (t) { return t.trim().replace(/^#/, ''); }).filter(function (t) { return t; });
+  }
+
+  titleEl.addEventListener('input', function () {
+    if (!isDraft(current)) { return; }
+    current.title = titleEl.value;
+    saveDrafts();
+    drawList();
+  });
+  tagsEl.addEventListener('input', function () {
+    if (!isDraft(current)) { return; }
+    current.tags = parseTags(tagsEl.value);
+    saveDrafts();
+  });
+  notesEl.addEventListener('input', function () {
+    current.notes = notesEl.value;
+    saveDrafts();
+  });
+  bodyEl.addEventListener('input', function () {
+    current.md = bodyEl.value;
+    saveDrafts();
+    refreshSoon();
+  });
+  toDraftBtn.addEventListener('click', function () {
+    show(newDraft(current));
+    say('새 글로 복사했다. 이제 고칠 수 있다.');
+  });
+
+  // 지우기는 두 번 눌러야 한다 (페이지 안에서는 확인 창을 띄울 수 없다)
+  var deleteArmed = false;
+  var deleteTimer = null;
+  function resetDelete() {
+    deleteArmed = false;
+    clearTimeout(deleteTimer);
+    delDraftBtn.textContent = '이 글 삭제';
+  }
+  delDraftBtn.addEventListener('click', function () {
+    if (!deleteArmed) {
+      deleteArmed = true;
+      delDraftBtn.textContent = '한 번 더 누르면 삭제';
+      deleteTimer = setTimeout(resetDelete, 3000);
+      return;
+    }
+    resetDelete();
+    var gone = current;
+    drafts = drafts.filter(function (d) { return d !== gone; });
+    saveDrafts();
+    delete posted[postedKey(gone)];
+    saveDone(posted);
+    show(drafts[0] || POSTS[0] || newDraft({}));
+    say('글을 지웠다.');
+  });
+
+  // ---------- AI 다듬기 (claude.ai에서 열었을 때만, 보는 사람의 Claude 사용량을 쓴다) ----------
+  var sample = null;
+  var aiBusy = false;
+  var aiCtl = null;
+  var aiBlocked = '';
+  var lastBefore = null;
+
+  var WRITER_RULES = [
+    '너는 C#/.NET 개발 블로그 "K-프로그래밍"(티스토리)의 글을 쓰고 다듬는 편집자다.',
+    '규칙:',
+    '- 한국어 평서체(~다)로 쓴다. 독자는 C#/.NET Framework를 공부하는 개발자다.',
+    '- 메모와 본문에 있는 사실과 코드만 쓴다. 없는 API, 버전, 수치를 지어내지 않는다. 확실하지 않으면 쓰지 않는다.',
+    '- 짧은 메모는 풀어서 설명하되, 비유는 한 번만 짧게 쓴다.',
+    '- 구성: 도입 1~2문단 → "## 소제목" 여러 개 → 마지막 "## 정리". "# 제목"(H1)은 쓰지 않는다.',
+    '- 코드는 ```csharp 펜스, 실행 결과는 ```text 펜스로 쓴다. 비교할 것이 있으면 GFM 표를 쓴다.',
+    '- 자기 점검 문답은 <details><summary>질문</summary>(빈 줄)답(빈 줄)</details> 형식으로 쓴다.',
+    '- 제목은 검색에 걸리게 핵심 키워드를 넣어 40자 안쪽 한 줄로 쓴다. 태그는 5~8개.',
+    '출력 형식 (이 형식 말고 다른 말은 쓰지 않는다):',
+    '제목: <제목 한 줄>',
+    '태그: <쉼표로 구분한 태그>',
+    '---',
+    '<본문 마크다운>'
+  ].join('\n');
+
+  function clip(text, max) { return text.length > max ? text.slice(0, max) + '\n...(뒷부분 생략)' : text; }
+
+  function draftPrompt(d) {
+    return WRITER_RULES + '\n\n아래 공부 메모로 블로그 글 초안을 써라.' +
+      (askEl.value.trim() ? '\n\n추가 요청: ' + askEl.value.trim() : '') +
+      '\n\n<공부 메모>\n' + clip(d.notes, 40000) + '\n</공부 메모>';
+  }
+
+  function polishPrompt(d) {
+    return WRITER_RULES + '\n\n아래 글을 다듬어라. 내용과 코드는 지키고, 문장·구성·설명을 읽기 쉽게 고친다.' +
+      (askEl.value.trim() ? '\n\n추가 요청: ' + askEl.value.trim() : '') +
+      (d.notes.trim() ? '\n\n<참고 메모>\n' + clip(d.notes, 20000) + '\n</참고 메모>' : '') +
+      '\n\n<지금 글>\n제목: ' + d.title + '\n태그: ' + d.tags.join(', ') + '\n---\n' + clip(d.md, 60000) + '\n</지금 글>';
+  }
+
+  function metaPrompt(d) {
+    return '아래 C#/.NET 블로그 글에 맞는 티스토리 제목과 태그를 정해라.\n' +
+      '- 제목: 핵심 키워드가 들어간 40자 안쪽 한국어 한 줄\n- 태그: 5~8개, 짧은 단어 (예: "C#", "닷넷", "event")\n' +
+      'JSON 하나만 답한다: {"title": "...", "tags": ["...", "..."]}\n\n' + clip(d.md || d.notes, 30000);
+  }
+
+  // "제목: / 태그: / --- / 본문" 형식을 쓰는 중에도 읽는다
+  function parseAi(text) {
+    var out = { title: null, tags: null, body: null };
+    var sep = text.search(/^---[ \t]*$/m);
+    var head = sep >= 0 ? text.slice(0, sep) : text;
+    var t = head.match(/^\s*제목\s*:\s*(.+)$/m);
+    var g = head.match(/^\s*태그\s*:\s*(.+)$/m);
+    if (t) { out.title = t[1].trim(); }
+    if (g) { out.tags = parseTags(g[1]); }
+    if (sep >= 0) { out.body = text.slice(sep).replace(/^---[ \t]*\n?/, ''); }
+    return out;
+  }
+
+  var aiRenderTimer = null;
+  function applyAi(d, r, final, raw) {
+    if (r.title !== null) { d.title = r.title; }
+    if (r.tags !== null) { d.tags = r.tags; }
+    if (r.body !== null) {
+      d.md = r.body.replace(/\s+$/, '') + '\n';
+    } else if (final && r.title === null) {
+      d.md = raw;   // 형식을 안 지켰으면 전부 본문으로 본다
+    }
+    if (d !== current) { return; }
+    titleEl.value = d.title;
+    tagsEl.value = d.tags.join(', ');
+    bodyEl.value = d.md;
+    if (final) {
+      clearTimeout(aiRenderTimer);
+      paper.innerHTML = render(d);
+      drawList();
+    } else if (!aiRenderTimer) {
+      aiRenderTimer = setTimeout(function () { aiRenderTimer = null; if (current === d) { paper.innerHTML = render(d); } }, 800);
+    }
+  }
+
+  var BLOCK_CODES = /^(not_granted|sampling_disabled|not_declared|capability_disabled|capability_removed)$/;
+  function aiMessage(code) {
+    if (BLOCK_CODES.test(code)) { return 'AI 사용이 허용되지 않았다. 본문은 직접 고쳐도 된다.'; }
+    switch (code) {
+      case 'cancelled': return '멈췄다. 쓰던 데까지는 남겨 두었다.';
+      case 'rate_limited': return '요청이 많거나 사용량 한도에 닿았다. 잠시 뒤 다시 눌러 주세요.';
+      case 'session_expired': return 'claude.ai 로그인이 풀렸다. 다시 로그인한 뒤 눌러 주세요.';
+      case 'refused': return 'Claude가 이 내용은 쓰지 않았다. 메모나 요청을 바꿔서 다시 해 보세요.';
+      case 'prompt_too_large': return '메모나 본문이 너무 길다. 나눠서 넣어 주세요.';
+      case 'invalid_json': return '추천 결과를 읽지 못했다. 다시 눌러 주세요.';
+      case 'empty_completion': return '답이 비어 있다. 메모를 조금 더 넣고 다시 눌러 주세요.';
+      default: return '연결이 끊겼다. 다시 눌러 주세요.';
+    }
+  }
+
+  function updateAiButtons() {
+    var off = !sample || aiBusy || !!aiBlocked;
+    aiDraftBtn.disabled = off;
+    aiPolishBtn.disabled = off;
+    aiMetaBtn.disabled = off;
+    aiStopBtn.hidden = !aiBusy;
+  }
+
+  function aiDone(d, e) {
+    aiBusy = false;
+    aiCtl = null;
+    if (e && BLOCK_CODES.test(e.code)) { aiBlocked = aiMessage(e.code); }
+    updateAiButtons();
+    saveDrafts();
+    aiUndoBtn.hidden = !lastBefore || current !== d;
+  }
+
+  function runAi(kind) {
+    var d = current;
+    if (!sample || aiBusy || !isDraft(d)) { return; }
+    if (kind === 'draft' && !d.notes.trim()) { aiStatus.textContent = '공부 메모를 먼저 넣어 주세요.'; return; }
+    if (kind !== 'draft' && !d.md.trim() && !(kind === 'meta' && d.notes.trim())) { aiStatus.textContent = '본문이 비어 있다. 먼저 "메모로 초안 만들기"를 눌러 주세요.'; return; }
+    lastBefore = { d: d, title: d.title, tags: d.tags.slice(), md: d.md };
+    aiBusy = true;
+    aiCtl = new AbortController();
+    aiUndoBtn.hidden = true;
+    updateAiButtons();
+    aiStatus.textContent = '생각하는 중… (처음 한 번은 허용 창이 뜬다)';
+
+    if (kind === 'meta') {
+      sample.json(metaPrompt(d), { modelTier: 'quick', cache: false, signal: aiCtl.signal }).then(function (r) {
+        applyAi(d, { title: r && r.title ? String(r.title) : null, tags: r && Array.isArray(r.tags) ? r.tags.map(String) : null, body: null }, true, '');
+        aiStatus.textContent = '제목과 태그를 바꿨다. 마음에 안 들면 "되돌리기".';
+        aiDone(d);
+      }, function (e) {
+        aiStatus.textContent = aiMessage(e.code);
+        aiDone(d, e);
+      });
+      return;
+    }
+
+    sample(kind === 'draft' ? draftPrompt(d) : polishPrompt(d), {
+      cache: false,
+      signal: aiCtl.signal,
+      onText: function (u) {
+        applyAi(d, parseAi(u.text), false, u.text);
+        aiStatus.textContent = '쓰는 중… ' + u.text.length.toLocaleString() + '자';
+      }
+    }).then(function (r) {
+      applyAi(d, parseAi(r.text), true, r.text);
+      aiStatus.textContent = r.truncated ? '글이 길어서 중간에 끊겼다. 메모를 나눠서 다시 해 보세요.' : '본문을 넣었다. 직접 고쳐도 되고, 마음에 안 들면 "되돌리기".';
+      aiDone(d);
+    }, function (e) {
+      if (e.code === 'refused') {
+        undoAi();
+      } else if (e.text) {
+        applyAi(d, parseAi(e.text), true, e.text);
+      }
+      aiStatus.textContent = aiMessage(e.code);
+      aiDone(d, e);
+    });
+  }
+
+  function undoAi() {
+    if (!lastBefore) { return; }
+    var b = lastBefore;
+    b.d.title = b.title;
+    b.d.tags = b.tags;
+    b.d.md = b.md;
+    lastBefore = null;
+    saveDrafts();
+    if (current === b.d) { show(b.d); }
+  }
+
+  aiDraftBtn.addEventListener('click', function () { runAi('draft'); });
+  aiPolishBtn.addEventListener('click', function () { runAi('polish'); });
+  aiMetaBtn.addEventListener('click', function () { runAi('meta'); });
+  aiStopBtn.addEventListener('click', function () { if (aiCtl) { aiCtl.abort(); } });
+  aiUndoBtn.addEventListener('click', function () { undoAi(); aiStatus.textContent = '되돌렸다.'; });
+
+  // claude.ai 밖(내려받은 html 파일)에서는 window.claude가 없다 → AI 버튼만 끄고 나머지는 그대로 쓴다
+  var useSample = window.claude && typeof window.claude.use === 'function'
+    ? window.claude.use('sample').catch(function () { return null; })
+    : Promise.resolve(null);
+  useSample.then(function (s) {
+    sample = s;
+    aiStatus.textContent = s ? '메모를 넣고 "메모로 초안 만들기"를 누른다. 내 Claude 사용량을 쓴다.' : 'AI 다듬기는 claude.ai에서 열었을 때만 된다. 본문은 직접 써도 된다.';
+    updateAiButtons();
+  });
 
   function showManual(text, label) {
     // 복사가 막히면 내용을 칸에 띄우고 전체 선택해 둔다. 사용자가 Ctrl+C만 누르면 된다.
@@ -461,13 +822,9 @@
     drawList();
   });
 
-  if (POSTS.length === 0) {
-    paper.textContent = '글이 없다. build-blog.js로 다시 만들어 주세요.';
-    return;
-  }
-  var start = POSTS[0];
+  var start = drafts[0] || POSTS[0] || newDraft({});
   var hash = (location.hash || '').slice(1);
-  POSTS.forEach(function (p) { if (p.id === hash) { start = p; } });
+  POSTS.concat(drafts).forEach(function (p) { if (p.id === hash) { start = p; } });
   show(start);
 })();
 </script>
