@@ -192,8 +192,3 @@ Console.WriteLine(frame.Image == null);  // True
 
 5. 생성자에서 `?? throw new ArgumentNullException(...)`을 하는 이유는?
 <details><summary>답</summary>잘못된 조립을 **만드는 순간** 발견하기 위해서다. 안 하면 운전 중 첫 프레임에서 NullReferenceException이 나고 원인 추적이 어렵다(Fail fast).</details>
-
-## 9. 블로그 포인트
-
-- 제목 예: `[설계] 영상 검사기가 카메라 종류를 몰라도 되는 이유 (DIP와 ISP)`
-- 콘센트·리모컨 비유 + PowerStrip Kata + MiniSight ImageFrame 소유권 규칙.

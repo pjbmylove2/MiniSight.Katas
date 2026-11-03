@@ -200,8 +200,3 @@ public interface IImageStore { bool ShouldSave(InspectionResult result); void Sa
 
 5. 순서가 중요한 결과를 처리할 때 소비자를 여러 개 두면 안 되는 이유는?
 <details><summary>답</summary>각 소비자의 처리 시간이 달라 완료 순서가 입력 순서와 달라진다. CSV 줄 순서·PLC 송신 순서가 섞인다. 병렬이 필요하면 키(카메라)별로 파티션해 키마다 소비자 1개를 둔다(OmniSight PartitionedInspectionOutputDispatcher).</details>
-
-## 9. 블로그 포인트
-
-- 제목 예: `[C# 동시성] 검사 결과는 버리지 않는다: Bounded BlockingCollection과 Backpressure`
-- 빵집 Kata의 무한 vs 유한 비교, 포장 직원 2명일 때 순서 섞임 실험.

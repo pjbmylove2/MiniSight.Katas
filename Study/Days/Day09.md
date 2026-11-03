@@ -184,8 +184,3 @@ namespace Katas.Day09
 
 5. 여러 필드로 된 상태를 lock 없이 안전하게 공유하는 방법은?
 <details><summary>답</summary>불변(immutable) 객체로 묶어 통째로 새로 만들고 참조만 Volatile.Write(또는 Interlocked.Exchange)로 교체한다. 읽는 쪽은 Volatile.Read로 참조를 한 번 얻어 그 객체만 쓴다(HardwareMonitorSnapshot, 소켓 Snapshot).</details>
-
-## 9. 블로그 포인트
-
-- 제목 예: `[C# 동기화] lock, Interlocked, volatile을 실험으로 비교하기`
-- Kata 1~3단계 출력 숫자 비교표, Freeze/Thaw로 race를 손으로 재현한 과정(스크린샷).

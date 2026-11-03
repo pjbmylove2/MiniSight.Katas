@@ -297,8 +297,3 @@ namespace Katas.Day18
 
 5. 풀 대기에 타임아웃이 없으면 어떤 장애 시나리오가 생기나?
 <details><summary>답</summary>SDK 호출 하나가 GPU 행 등으로 영원히 안 돌아오면 그 엔진이 반납되지 않는다. 다른 파이프라인들이 Wait에서 영원히 대기하고, Stop은 작업자 종료를 기다리며 멈추고, UI도 멈춘다. 타임아웃·알람·정지 경로 분리가 필요하다.</details>
-
-## 9. 블로그 포인트
-
-- 제목 예: `[C# Interop] 네이티브 AI 엔진을 안전하게 감싸기: Dispose 패턴 + Object Pool + ReaderWriterLockSlim`
-- Kata의 Alive 카운트 출력(2 → 2 → 0 → finalizer)이 좋은 증거. **SDK 이름 금지**, "네이티브 추론 SDK"로.

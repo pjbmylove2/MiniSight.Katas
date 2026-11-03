@@ -180,9 +180,3 @@ namespace Katas.Day05
 
 5. 왜 이 프로젝트는 DI 컨테이너 대신 손 조립을 택했다고 보나?
 <details><summary>답</summary>객체 수가 적고, 시작/정지 순서와 실패 롤백 같은 수명 규칙을 명시적으로 보여주는 것이 중요하다. 컨테이너는 이 순서를 숨기고 런타임 오류로 바꾼다. .NET Framework WinForms 환경에서 의존성 추가도 부담이다.</details>
-
-## 9. 블로그 포인트
-
-- 제목 예: `[설계] new는 한 곳에서만: Composition Root와 Func<T> 설정 주입`
-- Kata의 good vs stale 결과 비교가 좋은 글감.
-- ❌ 회사 기본 데이터 경로(드라이브·폴더명)는 고객사명이 들어가 있으니 절대 쓰지 않는다.

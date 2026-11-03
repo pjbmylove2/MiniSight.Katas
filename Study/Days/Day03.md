@@ -186,8 +186,3 @@ namespace Katas.Day03
 
 5. `catch { State = Faulted; throw; }`에서 `throw ex;`가 아니라 `throw;`인 이유는?
 <details><summary>답</summary>`throw;`는 원래 스택 트레이스를 보존한다. `throw ex;`는 스택 트레이스를 현재 줄로 덮어써 원인 위치를 잃는다.</details>
-
-## 9. 블로그 포인트
-
-- 제목 예: `[디자인패턴] 장비 클래스의 수명 관리를 Template Method로 고정한 이유`
-- 상태 그림(직접 그린 것) + 라면 Kata + "Stop 실패는 Faulted" 안전 원칙.

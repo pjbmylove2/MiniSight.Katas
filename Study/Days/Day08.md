@@ -188,8 +188,3 @@ namespace Katas.Day08
 
 5. `LongRunning`에 async 람다를 넘기면 어떻게 되나?
 <details><summary>답</summary>전용 스레드는 첫 await까지만 쓰이고 반납된다. 이후는 스레드풀에서 실행된다. 또 StartNew는 Task<Task>를 반환하므로 Unwrap()을 하지 않으면 바깥 Task가 첫 await에서 바로 완료된 것으로 보인다.</details>
-
-## 9. 블로그 포인트
-
-- 제목 예: `[C# 스레드] 하루 종일 도는 작업에 Task.Run을 쓰면 안 되는 이유 (스레드풀 고갈 실험)`
-- Kata의 "짧은 작업 대기 시간" 측정값이 좋은 근거 자료.

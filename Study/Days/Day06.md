@@ -200,8 +200,3 @@ namespace Katas.Day06
 
 5. 이벤트 구독 해제를 안 하면 어떤 일이 생기나?
 <details><summary>답</summary>발행자가 구독자를 참조하므로 폼이 닫혀도 GC가 회수하지 못한다(메모리 누수). 또 이벤트가 오면 이미 Dispose된 컨트롤에 접근해 ObjectDisposedException이 난다.</details>
-
-## 9. 블로그 포인트
-
-- 제목 예: `[설계] 장비 운전 상태를 enum 3개로 나눈 이유와 안전한 이벤트 방송`
-- 신호등 Kata 결과(2반 고장에도 3반이 들음) 출력 캡처, 롤백 실험 로그.

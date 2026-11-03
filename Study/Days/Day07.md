@@ -98,8 +98,3 @@ OmniSight에서 본 약점 하나를 MiniSight에서 **다르게** 해 본다. �
 
 5. 다음 주(멀티스레드)를 위해 1주차 코드에서 "다른 스레드가 접근하는 곳"을 3군데 찾아라.
 <details><summary>답</summary>① FakeCameraDriver 타이머 콜백(작업자 스레드) → 어댑터 OnFrame. ② ImageFrame.Dispose(정지 스레드 vs 작업자). ③ VisionSystem 이벤트 → UI 구독자(UI 스레드가 아닌 곳에서 호출될 수 있음). 그 밖에 Bootstrapper.InitializeAsync(Task.Run).</details>
-
-## 9. 블로그 포인트
-
-- 이번 주 2편 추천: "Adapter + Factory" 1편, "상태 머신 + Observer + 롤백" 1편.
-- 백지 시험 그림을 깔끔하게 다시 그려 **일반화된 구조도**로 올리면 좋다 (회사 클래스명 대신 MiniSight 이름).

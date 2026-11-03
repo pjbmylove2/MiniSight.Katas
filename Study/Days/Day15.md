@@ -202,8 +202,3 @@ namespace Katas.Day15
 
 5. 2000×1000 컬러 영상, 카메라 2대, 카메라 큐 32 + 처리 사본 1 + 저장 큐 4 + 화면 1이면 대략 메모리는?
 <details><summary>답</summary>장당 6MB. 카메라당 (32+1+1) = 34장 → 2대 68장, 저장 큐 4장(공유) = 72장 × 6MB ≈ 432MB. SDK 내부 버퍼·AI GPU 메모리·관리 객체는 별도.</details>
-
-## 9. 블로그 포인트
-
-- 제목 예: `[OpenCvSharp] Mat은 왜 꼭 Dispose해야 할까: stride, 래퍼, ROI 실험`
-- Kata 2·3번 출력, stride 그림, 직접 실행 창에서 `Cv2.ImWrite` 하는 디버깅 팁(의외로 사람들이 모름).

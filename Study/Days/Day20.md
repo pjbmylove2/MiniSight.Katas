@@ -121,8 +121,3 @@ private async void btnStop_Click(object sender, EventArgs e)
 
 5. 성능 측정을 Release 구성에서 하는 이유는?
 <details><summary>답</summary>Debug는 JIT 최적화가 꺼져 있고 디버그 검사 코드가 있어 실제 병목과 다른 결과가 나온다. 실제 배포와 같은 조건에서 측정해야 한다.</details>
-
-## 8. 블로그 포인트
-
-- 제목 예: `[WinForms + 멀티스레드] 검사 화면이 멈추지 않게 만드는 5가지 규칙 (프로파일러 측정 포함)`
-- 프로파일러 Top Functions 캡처(MiniSight), 10fps 제한 전/후 CPU 비교.

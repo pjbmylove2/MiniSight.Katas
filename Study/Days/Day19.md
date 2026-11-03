@@ -237,8 +237,3 @@ namespace Katas.Day19
 
 5. PictureBox 이미지를 교체할 때 옛 이미지를 먼저 Dispose하면 생기는 문제는?
 <details><summary>답</summary>PictureBox가 아직 옛 이미지를 참조하고 있는 상태에서 다시 그리면 해제된 GDI+ 객체를 그리려다 ArgumentException("매개 변수가 잘못되었습니다")이 나며 앱이 죽는다. 새 이미지로 교체한 뒤 옛것을 해제한다.</details>
-
-## 9. 블로그 포인트
-
-- 제목 예: `[WinForms] 카메라 30fps, 화면은 10fps: lock 없이 UI 프리뷰 제한하기`
-- 받음/표시 카운터 캡처, GDI 개체 수 증가 실험, Invoke 교착 재현.

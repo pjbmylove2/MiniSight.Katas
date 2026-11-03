@@ -183,8 +183,3 @@ public interface IInspectionController : IDisposable { void Start(); void Stop()
 
 5. `Mat.FromPixelData` 래퍼를 Dispose하면 원본 메모리도 해제되나?
 <details><summary>답</summary>아니다. 래퍼는 외부 버퍼를 가리키기만 하고 소유하지 않는다. Dispose는 래퍼 헤더만 해제한다. 원본은 소유자(ImageFrame의 owner Mat)가 해제한다. 그래서 래퍼보다 원본이 오래 살아야 한다.</details>
-
-## 9. 블로그 포인트
-
-- 제목 예: `[C# 멀티스레드] 영상 검사 파이프라인의 Start/Stop 순서와 Drain 정지`
-- 4.1 그림을 MiniSight 이름으로 다시 그린 것 + 메모리 스냅샷으로 Mat 누수 찾은 과정(스크린샷).

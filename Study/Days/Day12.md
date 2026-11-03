@@ -219,8 +219,3 @@ namespace Katas.Day12
 
 5. `TaskCompletionSource`에 `RunContinuationsAsynchronously`를 주는 이유는?
 <details><summary>답</summary>TrySetResult를 호출한 스레드에서 await 뒤 코드가 동기적으로 실행되는 것을 막는다. I/O 완료 스레드나 lock을 잡은 스레드가 예상치 못한 사용자 코드에 붙잡히는 재진입·교착을 방지한다.</details>
-
-## 9. 블로그 포인트
-
-- 제목 예: `[C# async] 장비 통신에서 꼭 지키는 async/await 규칙 7가지 (타임아웃은 WhenAny, 진 Task는 관찰)`
-- Kata 출력 3가지(빠른 연결/타임아웃/사용자 취소)로 타임아웃과 취소의 차이를 보여주기.

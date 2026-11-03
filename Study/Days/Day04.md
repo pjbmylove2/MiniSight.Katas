@@ -221,9 +221,3 @@ public static IImageSource Create(CameraKind kind, string name, string folderOrN
 
 5. DeviceFactory가 실패 시 역순으로 Dispose하는 이유는?
 <details><summary>답</summary>나중에 만든 장치가 먼저 만든 장치에 의존할 수 있다(카메라가 소켓 스냅샷을 참조 등). 의존하는 쪽부터 정리하는 것이 안전하다. 또 부분 생성된 장치가 핸들을 잡고 있으면 재시작 시 장치 점유 오류가 난다.</details>
-
-## 9. 블로그 포인트
-
-- 제목 예: `[디자인패턴] 카메라 SDK를 바꿔도 검사 코드는 그대로: Adapter + Factory`
-- 돼지코 비유, Kata, MiniSight FakeCameraDriver의 "구독자가 없으면 내가 Dispose" 규칙.
-- ❌ 회사가 쓰는 벤더 조합·모델명은 쓰지 않는다 (일반적인 "벤더 A/B"로).

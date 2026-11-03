@@ -214,8 +214,3 @@ namespace Katas.Day11
 
 5. 생산자 대기 횟수를 세는 이유는?
 <details><summary>답</summary>큐가 가득 차 SDK 콜백이 막혔다는 것은 검사·저장이 입력 속도를 못 따라간다는 경고다. 카운터와 알람으로 현장에서 처리량 문제를 조기에 발견한다.</details>
-
-## 9. 블로그 포인트
-
-- 제목 예: `[C# 비동기] BlockingCollection을 await 하고 싶을 때: SemaphoreSlim 두 개로 만든 Bounded Async Queue`
-- 숫자 따라가기 표, Tasks 창과 스레드 창 비교 스크린샷(MiniSight).
