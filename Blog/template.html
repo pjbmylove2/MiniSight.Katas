@@ -72,6 +72,7 @@
   button.btn:focus-visible, .group button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .done-toggle { display: flex; align-items: center; gap: 6px; margin-left: auto; color: var(--muted); font-size: 14px; }
   .toast { font-size: 13px; color: var(--done); min-height: 1.2em; }
+  .manual { width: 100%; min-height: 160px; font-family: var(--font-mono); font-size: 12px; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
   .help { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.6; }
   .help b { color: var(--fg); }
 
@@ -109,11 +110,13 @@
       </div>
       <div class="actions">
         <button class="btn primary" id="copyRich" type="button">본문 복사 (네이버 · 티스토리 기본모드)</button>
+        <button class="btn" id="copyHtml" type="button">HTML 코드 복사 (티스토리 HTML 모드)</button>
         <button class="btn" id="copyMd" type="button">마크다운 복사 (티스토리 마크다운 모드)</button>
         <label class="done-toggle"><input type="checkbox" id="done"> 올렸음</label>
       </div>
       <div class="toast" id="toast" role="status" aria-live="polite"></div>
-      <p class="help"><b>네이버</b>: 글쓰기 → 제목 칸에 제목 붙여넣기 → 본문 칸 클릭 → Ctrl+V. <b>티스토리</b>: 기본모드면 같은 방법, 마크다운 모드면 "마크다운 복사"를 붙여넣는다.</p>
+      <textarea id="manual" class="manual" readonly hidden aria-label="복사할 내용"></textarea>
+      <p class="help"><b>네이버</b>: 글쓰기 → 제목 칸에 제목 붙여넣기 → 본문 칸 클릭 → Ctrl+V. <b>티스토리</b>: 글쓰기 → 오른쪽 위 "기본모드"를 "HTML"로 바꾸기 → "HTML 코드 복사"를 붙여넣는다 (표·코드 블록이 제대로 나온다).</p>
     </section>
 
     <article class="paper-wrap">
@@ -161,14 +164,35 @@
     return div;
   }
 
-  function renderPaper(md) {
+  // 티스토리 HTML 모드는 <pre>를 그대로 살리므로, 코드는 <pre>로 두고 넓은 표는 가로 스크롤 상자에 넣는다.
+  function preBlock(text) {
+    var pre = document.createElement('pre');
+    pre.setAttribute('style', S.pre + 'overflow-x:auto;tab-size:4;');
+    var code = document.createElement('code');
+    code.setAttribute('style', 'font-family:' + MONO + ';font-size:14px;background:none;color:inherit;padding:0;white-space:pre;');
+    code.textContent = text.replace(/\n$/, '');
+    pre.appendChild(code);
+    return pre;
+  }
+
+  function renderPaper(md, mode) {
     var box = document.createElement('div');
     box.innerHTML = marked.parse(md, { gfm: true });
 
     box.querySelectorAll('pre').forEach(function (pre) {
       var code = pre.querySelector('code');
-      pre.replaceWith(codeBlock(code ? code.textContent : pre.textContent));
+      var text = code ? code.textContent : pre.textContent;
+      pre.replaceWith(mode === 'tistory' ? preBlock(text) : codeBlock(text));
     });
+
+    if (mode === 'tistory') {
+      box.querySelectorAll('table').forEach(function (t) {
+        var wrap = document.createElement('div');
+        wrap.setAttribute('style', 'overflow-x:auto;margin:0 0 18px;');
+        t.parentNode.insertBefore(wrap, t);
+        wrap.appendChild(t);
+      });
+    }
 
     // 접는 Q&A(<details>)는 네이버가 지원하지 않아서 질문/답 문단으로 편다.
     box.querySelectorAll('details').forEach(function (d) {
@@ -189,6 +213,13 @@
     Object.keys(S).forEach(function (tag) {
       if (tag === 'pre' || tag === 'q' || tag === 'a') { return; }
       box.querySelectorAll(tag).forEach(function (el) {
+        if (tag === 'code' && el.parentElement && el.parentElement.tagName === 'PRE') {
+          return;
+        }
+        if (tag === 'table' && mode === 'tistory') {
+          el.setAttribute('style', S.table.replace('margin:0 0 18px;', 'margin:0;') + 'width:auto;min-width:100%;');
+          return;
+        }
         if (tag === 'p' && el.parentElement && el.parentElement.getAttribute('style') === S.a) {
           el.setAttribute('style', 'margin:0 0 8px;font-size:16px;line-height:1.85;');
           return;
@@ -205,6 +236,7 @@
   var paper = document.getElementById('paper');
   var toast = document.getElementById('toast');
   var doneBox = document.getElementById('done');
+  var manual = document.getElementById('manual');
   var current = null;
   var toastTimer = null;
 
@@ -270,8 +302,18 @@
       var ok = false;
       try { ok = document.execCommand('copy'); } catch (e) { }
       ta.remove();
-      say(ok ? label + ' 복사했다.' : '복사가 막혔다. 텍스트를 직접 선택해 Ctrl+C 하세요.');
+      if (ok) {
+        say(label + ' 복사했다.');
+        return;
+      }
+      // 복사가 막히면 내용을 칸에 띄우고 전체 선택해 둔다. 사용자가 Ctrl+C만 누르면 된다.
+      manual.hidden = false;
+      manual.value = text;
+      manual.focus();
+      manual.select();
+      say('자동 복사가 막혀서 아래 칸에 ' + label + '을(를) 선택해 두었다. Ctrl+C 하세요.');
     }
+    manual.hidden = true;
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function () { say(label + ' 복사했다.'); }, fallback);
     } else {
@@ -307,6 +349,7 @@
   document.getElementById('copyTitle').addEventListener('click', function () { copyText(current.title, '제목'); });
   document.getElementById('copyTags').addEventListener('click', function () { copyText(current.tags.join(', '), '태그'); });
   document.getElementById('copyMd').addEventListener('click', function () { copyText(current.md, '마크다운'); });
+  document.getElementById('copyHtml').addEventListener('click', function () { copyText(renderPaper(current.md, 'tistory'), 'HTML 코드'); });
   document.getElementById('copyRich').addEventListener('click', copyRich);
   doneBox.addEventListener('change', function () {
     if (doneBox.checked) { posted[current.id] = true; } else { delete posted[current.id]; }
