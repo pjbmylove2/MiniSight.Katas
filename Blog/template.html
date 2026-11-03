@@ -283,8 +283,42 @@
       if (!el.parentElement || el.parentElement.nodeName !== 'PRE') { el.setAttribute('style', TS.code); }
     });
     box.querySelectorAll('a').forEach(function (el) { el.setAttribute('style', 'color:#1f5f8b;'); });
+    fitTables(box);
     box.querySelectorAll('[class]').forEach(function (el) { el.removeAttribute('class'); });
     return box.innerHTML.trim();
+  }
+
+  // 티스토리 스킨이 표 칸에 글자 단위 줄바꿈(word-break:break-all)을 걸어 "Day04"가 "Day0 / 4"로 끊긴다.
+  // 열마다 가장 긴 칸을 보고, 짧은 열은 줄바꿈을 막고 나머지는 단어 단위로만 줄바꿈한다.
+  // 스킨 CSS를 이기려고 !important를 붙인다.
+  var SHORT_COLUMN = 14;   // 이 글자 수 이하인 열은 한 줄로 둔다
+  var SHORT_CODE = 24;     // 이 글자 수 이하인 인라인 코드는 중간에서 끊지 않는다
+  function fitTables(box) {
+    box.querySelectorAll('table').forEach(function (t) {
+      t.style.setProperty('table-layout', 'auto', 'important');
+      var rows = t.querySelectorAll('tr');
+      var maxLen = [];
+      rows.forEach(function (r) {
+        r.querySelectorAll('th,td').forEach(function (c, i) {
+          maxLen[i] = Math.max(maxLen[i] || 0, c.textContent.trim().length);
+        });
+      });
+      rows.forEach(function (r) {
+        r.querySelectorAll('th,td').forEach(function (c, i) {
+          c.style.setProperty('word-break', 'keep-all', 'important');
+          c.style.setProperty('overflow-wrap', 'break-word', 'important');
+          if (maxLen[i] <= SHORT_COLUMN) {
+            c.style.setProperty('white-space', 'nowrap', 'important');
+          }
+        });
+      });
+      t.querySelectorAll('code').forEach(function (c) {
+        c.style.setProperty('word-break', 'keep-all', 'important');
+        if (c.textContent.length <= SHORT_CODE) {
+          c.style.setProperty('white-space', 'nowrap', 'important');
+        }
+      });
+    });
   }
 
   function render(md) {
