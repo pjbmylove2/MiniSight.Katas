@@ -428,7 +428,8 @@
   // 표 열 너비: 짧은 열은 한 줄로 두고, 긴 설명 열은 최소 너비를 줘서 단어마다 줄이 바뀌지 않게 한다
   var SHORT_COLUMN = 14;      // 이 글자 수 이하인 열은 한 줄
   var TEXT_MIN_WIDTH = '11em'; // 긴 설명 열의 최소 너비 (넓으면 표만 가로 스크롤)
-  var tables = document.querySelectorAll('.kp-article table');
+  // 티스토리가 넣는 "카테고리의 다른 글" 표는 CSS로 따로 꾸미므로 뺀다
+  var tables = document.querySelectorAll('.kp-article table:not(.another_category table)');
   for (var ti = 0; ti < tables.length; ti++) {
     var rows = tables[ti].rows;
     var maxLen = [];

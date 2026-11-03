@@ -245,6 +245,20 @@ button, input { font-family: inherit; font-size: inherit; color: inherit; }
 :root[data-theme="dark"] .kp-article :is(span, font, b, strong)[style*="color: rgb(34, 34, 34)"]:not(pre *),
 :root[data-theme="dark"] .kp-article font[color="#000000"]:not(pre *) { color: var(--text) !important; }
 
+/* 티스토리가 본문 끝에 넣는 "카테고리의 다른 글" (div.another_category): 오른쪽 "다른 글" 상자와 같은 모양으로 */
+html:root .kp-article .another_category { margin: 36px 0 0; padding: 16px 18px; border: 1px solid var(--line) !important; border-radius: 10px; background: var(--sub) !important; font-size: 14px; }
+html:root .kp-article .another_category h4 { margin: 0 0 8px; padding: 0 0 10px; border: 0; border-bottom: 1px solid var(--line); font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: var(--muted) !important; }
+html:root .kp-article .another_category h4 a { color: var(--accent) !important; text-decoration: none; }
+html:root .kp-article .another_category table { display: table; width: 100%; margin: 0; border: 0 !important; border-collapse: collapse; font-size: 14px; background: transparent !important; }
+html:root .kp-article .another_category tr { background: transparent !important; }
+html:root .kp-article .another_category :is(th, td) { padding: 7px 0; border: 0 !important; border-top: 1px solid var(--line) !important; background: transparent !important; vertical-align: baseline; line-height: 1.5; }
+html:root .kp-article .another_category tr:first-child :is(th, td) { border-top: 0 !important; }
+html:root .kp-article .another_category th { font-weight: 400; text-align: left; color: var(--text2) !important; }
+html:root .kp-article .another_category th a { color: var(--text2) !important; text-decoration: none; }
+html:root .kp-article .another_category th a:hover { color: var(--accent) !important; }
+html:root .kp-article .another_category th span { font-size: 12px; color: var(--muted) !important; }
+html:root .kp-article .another_category td { width: 1%; padding-left: 16px; white-space: nowrap; text-align: right; font-family: var(--mono); font-size: 12px; color: var(--muted) !important; }
+
 /* 09 목차 · 같은 카테고리 글 ---------------------------------------------- */
 .kp-rail { position: sticky; top: 76px; display: flex; flex-direction: column; gap: 22px; font-size: 13px; }
 .kp-toc { border-left: 1px solid var(--line); padding-left: 16px; }
