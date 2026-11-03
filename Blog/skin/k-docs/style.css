@@ -188,6 +188,22 @@ button, input { font-family: inherit; font-size: inherit; color: inherit; }
 /* 코드 블록: VS2022 다크 (티스토리 에디터 코드블럭 포함) */
 .kp-article pre { margin: 0 0 22px; padding: 16px 18px; background: var(--code-bg) !important; color: var(--code-text); border: 1px solid var(--code-line); border-radius: 8px; overflow-x: auto; font-family: var(--mono); font-size: 14px; line-height: 1.6; tab-size: 4; white-space: pre; word-break: normal !important; }
 .kp-article pre code { font-family: inherit; font-size: inherit; background: none !important; color: inherit; padding: 0; }
+/* 티스토리 "코드 블록 하이라이트"(highlight.js + 밝은 vs 테마)가 모든 코드에 색을 다시 입힌다.
+   어두운 코드 상자에서 읽히도록 그 색을 VS2022 다크 색으로 바꾼다 */
+.kp-article .hljs { background: transparent !important; color: var(--code-text) !important; padding: 0 !important; }
+.kp-article .hljs-keyword, .kp-article .hljs-built_in, .kp-article .hljs-literal, .kp-article .hljs-selector-tag { color: #569cd6 !important; }
+.kp-article .hljs-title, .kp-article .hljs-type, .kp-article .hljs-class .hljs-title, .kp-article .hljs-title.class_ { color: #4ec9b0 !important; }
+.kp-article .hljs-function .hljs-title, .kp-article .hljs-title.function_ { color: #dcdcaa !important; }
+.kp-article .hljs-string, .kp-article .hljs-char { color: #d69d85 !important; }
+.kp-article .hljs-comment, .kp-article .hljs-quote { color: #57a64a !important; font-style: normal !important; }
+.kp-article .hljs-doctag { color: #608b4e !important; }
+.kp-article .hljs-number { color: #b5cea8 !important; }
+.kp-article .hljs-meta, .kp-article .hljs-meta-keyword { color: #9b9b9b !important; }
+.kp-article .hljs-attr, .kp-article .hljs-variable, .kp-article .hljs-template-variable, .kp-article .hljs-attribute { color: #9cdcfe !important; }
+.kp-article .hljs-params, .kp-article .hljs-subst, .kp-article .hljs-function { color: var(--code-text) !important; }
+.kp-article .hljs-symbol, .kp-article .hljs-bullet, .kp-article .hljs-link { color: #dcdcaa !important; }
+.kp-article .hljs-addition { color: #b5cea8 !important; }
+.kp-article .hljs-deletion { color: #d69d85 !important; }
 /* 블로그 복사대로 붙여넣은 HTML(인라인 스타일)은 그대로 두고, 다크 테마에서 밝은 상자만 맞춘다 */
 :root[data-theme="dark"] .kp-article [style*="background:#f8fafc"],
 :root[data-theme="dark"] .kp-article [style*="background:#f0f4f8"],
@@ -225,6 +241,30 @@ button, input { font-family: inherit; font-size: inherit; color: inherit; }
 /* 10 댓글 · 기타 ------------------------------------------------------- */
 .kp-comments { margin-top: 40px; padding-top: 8px; border-top: 1px solid var(--line); }
 .kp-comments textarea, .kp-guest textarea { background: var(--sub); color: var(--text); border-color: var(--line); }
+/* 티스토리 댓글·방명록 부품(tt-*)은 흰 배경·검은 글자가 박혀 있어 테마 색으로 바꾼다 */
+.kp-comments, .kp-guest { color: var(--text); }
+.kp-comments [data-tistory-react-app] *, .kp-guest [data-tistory-react-app] * { border-color: var(--line) !important; }
+.kp-comments .tt-link-user, .kp-guest .tt-link-user,
+.kp-comments .tt_desc, .kp-guest .tt_desc,
+.kp-comments .tt-cmt, .kp-guest .tt-cmt,
+.kp-comments .tt-inner-g, .kp-guest .tt-inner-g,
+.kp-comments .tt-box-total, .kp-guest .tt-box-total,
+.kp-comments .tt_txt_g, .kp-guest .tt_txt_g { color: var(--text) !important; }
+.kp-comments .tt_date, .kp-guest .tt_date,
+.kp-comments .tt-txt-total, .kp-guest .tt-txt-total { color: var(--muted) !important; }
+.kp-comments .tt-box-textarea, .kp-guest .tt-box-textarea,
+.kp-comments .tt-inner-g, .kp-guest .tt-inner-g,
+.kp-comments .tt_inp_g, .kp-guest .tt_inp_g,
+.kp-comments input, .kp-guest input,
+.kp-comments .tt-cmt, .kp-guest .tt-cmt { background: var(--sub) !important; color: var(--text) !important; }
+.kp-comments ::placeholder, .kp-guest ::placeholder { color: var(--muted) !important; }
+.kp-comments .tt-list-modify, .kp-guest .tt-list-modify,
+.kp-comments .tt_box_pwd, .kp-guest .tt_box_pwd { background: var(--bg) !important; color: var(--text) !important; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); }
+.kp-comments .tt-list-modify a, .kp-guest .tt-list-modify a,
+.kp-comments .tt-list-modify button, .kp-guest .tt-list-modify button { color: var(--text) !important; }
+.kp-comments .tt-btn_register, .kp-guest .tt-btn_register,
+.kp-comments .tt_btn_submit, .kp-guest .tt_btn_submit { background: var(--accent) !important; border-color: var(--accent) !important; color: var(--on-accent) !important; }
+.kp-comments .tt-btn_register:disabled, .kp-guest .tt-btn_register:disabled { opacity: 0.5; }
 .kp-footer { border-top: 1px solid var(--line); }
 .kp-footer-in { max-width: 1280px; margin: 0 auto; padding: 24px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--muted); }
 .kp-footer-links { display: flex; gap: 14px; }
