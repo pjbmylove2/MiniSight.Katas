@@ -11,7 +11,7 @@ namespace Katas.Basics
             Console.WriteLine("나쁜 설계: 일꾼에게 리모컨을 줌");
             using (CancellationTokenSource remote = new CancellationTokenSource())
             {
-                Task camera = Task.Run(() => CameraBad(remote.Token));
+                Task camera = Task.Run(() => CameraBad(remote));
                 Task plc = Task.Run(() => PlcBad(remote));
 
                 try
@@ -34,16 +34,16 @@ namespace Katas.Basics
             }
         }
 
-        private static void CameraBad(CancellationToken token)
+        private static void CameraBad(CancellationTokenSource remote)
         {
             for (int i = 1; i <= 5; i++)
             {
-                token.ThrowIfCancellationRequested();
+                remote.Token.ThrowIfCancellationRequested();
                 Console.WriteLine("  카메라 " + i + "장");
                 if (i == 2)
                 {
                     Console.WriteLine("  카메라: 사진이 흐리네, 나만 쉬어야지 -> Cancel()");
-                    token.Cancel();
+                    remote.Cancel();
                 }
                 Thread.Sleep(300);
             }
