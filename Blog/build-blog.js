@@ -44,7 +44,7 @@ function loadDoneIds() {
     // PROGRESS 표 줄 "| 날짜 | Day01 | ☑ | ..."에서 끝낸 글번호를 모은다
     const text = fs.readFileSync(path.join(STUDY, 'PROGRESS.md'), 'utf8');
     const done = new Set();
-    const re = /^|[^|]*|s*(S+)s*|s*☑/gm;
+    const re = /^\|[^|\n]*\|\s*(\S+)\s*\|\s*☑/gm;
     let m;
     while ((m = re.exec(text)) !== null) {
         done.add(m[1]);
@@ -120,12 +120,12 @@ function build(outPath) {
         const dir = path.join(STUDY, sec.dir);
         const files = fs.readdirSync(dir)
             .filter(f => sec.pattern.test(f))
-            .filter(f => !sec.onlyDone || doneIds.has(f.replace(/.md$/, '')))
+            .filter(f => !sec.onlyDone || doneIds.has(f.replace(/\.md$/, '')))
             .sort();
         const posts = files.map(f => {
             const raw = fs.readFileSync(path.join(dir, f), 'utf8').replace(/^﻿/, '');
             const h1 = raw.split(/\r?\n/)[0].replace(/^#\s+/, '');
-            const fileId = sec.idFromFile ? f.replace(/.md$/, '') : '';
+            const fileId = sec.idFromFile ? f.replace(/\.md$/, '') : '';
             const post = {
                 id: fileId || h1.split(' · ')[0].trim(),
                 file: sec.dir + '/' + f,
