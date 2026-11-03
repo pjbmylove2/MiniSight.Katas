@@ -226,6 +226,25 @@ button, input { font-family: inherit; font-size: inherit; color: inherit; }
   :root:not([data-theme="light"]) .kp-article [style*="color:#24292f"] { color: var(--text) !important; }
 }
 
+/* 다크 테마: 글 안에 박힌 라이트용 색(복사대 글·예전 에디터 글)을 테마 색으로 바꾼다.
+   스크립트가 자동 모드에서도 data-theme을 light/dark로 정하므로 이 선택자 하나로 충분하다.
+   코드 상자(pre) 안의 색은 건드리지 않는다 */
+:root[data-theme="dark"] .kp-article :is(h1, h2, h3, h4, h5, h6, p, li, dt, dd, summary, figcaption) { color: var(--text) !important; }
+:root[data-theme="dark"] .kp-article :is(table, thead, tbody, tr) { background-color: transparent !important; border-color: var(--line) !important; }
+:root[data-theme="dark"] .kp-article :is(th, td) { background-color: transparent !important; color: var(--text) !important; border-color: var(--line) !important; }
+:root[data-theme="dark"] .kp-article th { background-color: var(--sub) !important; }
+:root[data-theme="dark"] .kp-article div:has(> table) { border-color: var(--line) !important; }
+:root[data-theme="dark"] .kp-article :not(pre) > code { background: var(--chip) !important; color: var(--inline-code) !important; }
+:root[data-theme="dark"] .kp-article :is(details, blockquote) { background: var(--sub) !important; color: var(--text2) !important; border-color: var(--line) !important; }
+/* 예전 에디터가 글자마다 넣은 검정·진회색 */
+:root[data-theme="dark"] .kp-article :is(span, font, b, strong)[style*="color: #000"]:not(pre *),
+:root[data-theme="dark"] .kp-article :is(span, font, b, strong)[style*="color: #333"]:not(pre *),
+:root[data-theme="dark"] .kp-article :is(span, font, b, strong)[style*="color: #222"]:not(pre *),
+:root[data-theme="dark"] .kp-article :is(span, font, b, strong)[style*="color: rgb(0, 0, 0)"]:not(pre *),
+:root[data-theme="dark"] .kp-article :is(span, font, b, strong)[style*="color: rgb(51, 51, 51)"]:not(pre *),
+:root[data-theme="dark"] .kp-article :is(span, font, b, strong)[style*="color: rgb(34, 34, 34)"]:not(pre *),
+:root[data-theme="dark"] .kp-article font[color="#000000"]:not(pre *) { color: var(--text) !important; }
+
 /* 09 목차 · 같은 카테고리 글 ---------------------------------------------- */
 .kp-rail { position: sticky; top: 76px; display: flex; flex-direction: column; gap: 22px; font-size: 13px; }
 .kp-toc { border-left: 1px solid var(--line); padding-left: 16px; }

@@ -291,32 +291,48 @@
   // 티스토리 스킨이 표 칸에 글자 단위 줄바꿈(word-break:break-all)을 걸어 "Day04"가 "Day0 / 4"로 끊긴다.
   // 열마다 가장 긴 칸을 보고, 짧은 열은 줄바꿈을 막고 나머지는 단어 단위로만 줄바꿈한다.
   // 스킨 CSS를 이기려고 !important를 붙인다.
+  // style.setProperty를 쓰면 브라우저가 style 전체를 rgb(...) 형태로 다시 써서, 스킨이 #색 이름으로 찾지 못한다.
+  // 그래서 원래 글자 뒤에 덧붙이기만 한다.
   var SHORT_COLUMN = 14;   // 이 글자 수 이하인 열은 한 줄로 둔다
   var SHORT_CODE = 24;     // 이 글자 수 이하인 인라인 코드는 중간에서 끊지 않는다
+  var TEXT_MIN_WIDTH = '11em'; // 긴 설명 열의 최소 너비
+  function addStyle(el, css) {
+    el.setAttribute('style', (el.getAttribute('style') || '') + css);
+  }
   function fitTables(box) {
     box.querySelectorAll('table').forEach(function (t) {
-      t.style.setProperty('table-layout', 'auto', 'important');
+      addStyle(t, 'table-layout:auto !important;');
       var rows = t.querySelectorAll('tr');
       var maxLen = [];
+      var codeOnly = [];
       rows.forEach(function (r) {
         r.querySelectorAll('th,td').forEach(function (c, i) {
-          maxLen[i] = Math.max(maxLen[i] || 0, c.textContent.trim().length);
-        });
-      });
-      rows.forEach(function (r) {
-        r.querySelectorAll('th,td').forEach(function (c, i) {
-          c.style.setProperty('word-break', 'keep-all', 'important');
-          c.style.setProperty('overflow-wrap', 'break-word', 'important');
-          if (maxLen[i] <= SHORT_COLUMN) {
-            c.style.setProperty('white-space', 'nowrap', 'important');
+          var text = c.textContent.trim();
+          maxLen[i] = Math.max(maxLen[i] || 0, text.length);
+          if (c.nodeName === 'TD' && text) {
+            var codeText = '';
+            c.querySelectorAll('code').forEach(function (k) { codeText += k.textContent; });
+            codeOnly[i] = codeOnly[i] !== false && codeText.replace(/\s/g, '') === text.replace(/\s/g, '');
           }
         });
       });
+      rows.forEach(function (r) {
+        r.querySelectorAll('th,td').forEach(function (c, i) {
+          var css = 'word-break:keep-all !important;overflow-wrap:break-word !important;';
+          if (maxLen[i] <= SHORT_COLUMN) {
+            css += 'white-space:nowrap !important;';
+          } else if (codeOnly[i] !== true) {
+            css += 'min-width:' + TEXT_MIN_WIDTH + ' !important;';
+          }
+          addStyle(c, css);
+        });
+      });
       t.querySelectorAll('code').forEach(function (c) {
-        c.style.setProperty('word-break', 'keep-all', 'important');
+        var css = 'word-break:keep-all !important;';
         if (c.textContent.length <= SHORT_CODE) {
-          c.style.setProperty('white-space', 'nowrap', 'important');
+          css += 'white-space:nowrap !important;';
         }
+        addStyle(c, css);
       });
     });
   }

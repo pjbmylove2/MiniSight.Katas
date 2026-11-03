@@ -11,13 +11,16 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&amp;family=Nanum+Gothic+Coding:wght@400;700&amp;display=swap">
 <link rel="stylesheet" href="./style.css">
 <script>
-/* 화면이 그려지기 전에 테마를 정한다 (깜박임 방지). auto = OS 설정을 따른다 */
+/* 화면이 그려지기 전에 테마를 정한다 (깜박임 방지).
+   auto(OS 따라감)여도 data-theme에는 실제로 보이는 light/dark를 넣는다. CSS는 data-theme만 보면 된다 */
 (function () {
   var d = document.documentElement;
   var t = null;
   try { t = localStorage.getItem('kp-theme'); } catch (e) { }
   t = t || d.getAttribute('data-default-theme') || 'auto';
-  if (t === 'light' || t === 'dark') { d.setAttribute('data-theme', t); }
+  var osDark = false;
+  try { osDark = window.matchMedia('(prefers-color-scheme: dark)').matches; } catch (e) { }
+  d.setAttribute('data-theme', t === 'dark' || (t === 'auto' && osDark) ? 'dark' : 'light');
 })();
 </script>
 </head>
@@ -291,18 +294,22 @@
     try { t = localStorage.getItem('kp-theme'); } catch (e) { }
     return t || root.getAttribute('data-default-theme') || 'auto';
   }
+  var osDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
   function applyTheme(t) {
-    if (t === 'light' || t === 'dark') {
-      root.setAttribute('data-theme', t);
-    } else {
-      root.removeAttribute('data-theme');
-    }
+    var dark = t === 'dark' || (t === 'auto' && osDark !== null && osDark.matches);
+    root.setAttribute('data-theme', dark ? 'dark' : 'light');
     var buttons = document.querySelectorAll('[data-theme-pick]');
     for (var i = 0; i < buttons.length; i++) {
       buttons[i].setAttribute('aria-pressed', buttons[i].getAttribute('data-theme-pick') === t ? 'true' : 'false');
     }
   }
   applyTheme(currentTheme());
+  // 자동일 때 OS 설정이 바뀌면 바로 따라간다
+  if (osDark !== null && osDark.addEventListener) {
+    osDark.addEventListener('change', function () {
+      if (currentTheme() === 'auto') { applyTheme('auto'); }
+    });
+  }
   var picks = document.querySelectorAll('[data-theme-pick]');
   for (var p = 0; p < picks.length; p++) {
     picks[p].addEventListener('click', function () {
@@ -384,6 +391,39 @@
           }
         }, { rootMargin: '-80px 0px -70% 0px' });
         for (var o = 0; o < heads.length; o++) { io.observe(heads[o]); }
+      }
+    }
+  }
+
+  // 표 열 너비: 짧은 열은 한 줄로 두고, 긴 설명 열은 최소 너비를 줘서 단어마다 줄이 바뀌지 않게 한다
+  var SHORT_COLUMN = 14;      // 이 글자 수 이하인 열은 한 줄
+  var TEXT_MIN_WIDTH = '11em'; // 긴 설명 열의 최소 너비 (넓으면 표만 가로 스크롤)
+  var tables = document.querySelectorAll('.kp-article table');
+  for (var ti = 0; ti < tables.length; ti++) {
+    var rows = tables[ti].rows;
+    var maxLen = [];
+    var codeOnly = [];
+    for (var r = 0; r < rows.length; r++) {
+      for (var ci = 0; ci < rows[r].cells.length; ci++) {
+        var cell = rows[r].cells[ci];
+        var cellText = cell.textContent.trim();
+        var codeText = '';
+        var codes = cell.querySelectorAll('code');
+        for (var k2 = 0; k2 < codes.length; k2++) { codeText += codes[k2].textContent; }
+        maxLen[ci] = Math.max(maxLen[ci] || 0, cellText.length);
+        if (cell.tagName === 'TD' && cellText) {
+          codeOnly[ci] = codeOnly[ci] !== false && codeText.replace(/\s/g, '') === cellText.replace(/\s/g, '');
+        }
+      }
+    }
+    for (var r2 = 0; r2 < rows.length; r2++) {
+      for (var c2 = 0; c2 < rows[r2].cells.length; c2++) {
+        var cl = rows[r2].cells[c2];
+        if (maxLen[c2] <= SHORT_COLUMN) {
+          cl.style.setProperty('white-space', 'nowrap', 'important');
+        } else if (codeOnly[c2] !== true) {
+          cl.style.setProperty('min-width', TEXT_MIN_WIDTH, 'important');
+        }
       }
     }
   }
