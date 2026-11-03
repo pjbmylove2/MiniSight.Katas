@@ -151,12 +151,10 @@
   var MONO = "D2Coding, Consolas, 'Courier New', monospace";
 
   // 붙여넣으면 블로그가 CSS 클래스를 버리므로, 모든 모양은 style 속성으로 직접 넣는다.
-  // 코드 색: 문법 강조 결과(hljs 클래스)를 글자색으로 바꾼다. 네이버는 흰 바탕, 티스토리는 어두운 코드 상자.
+  // 코드 색: 문법 강조 결과(hljs 클래스)를 글자색으로 바꾼다. 티스토리의 어두운 코드 상자용.
   var CODE_COLORS = {
-    light: { keyword: '#cf222e', built_in: '#953800', type: '#953800', literal: '#0550ae', number: '#0550ae',
-             string: '#0a3069', comment: '#6e7781', meta: '#6e7781', title: '#8250df', params: '#24292f', attr: '#0550ae' },
-    dark:  { keyword: '#ff7b72', built_in: '#ffa657', type: '#ffa657', literal: '#79c0ff', number: '#79c0ff',
-             string: '#a5d6ff', comment: '#8b949e', meta: '#8b949e', title: '#d2a8ff', params: '#e6edf3', attr: '#79c0ff' }
+    keyword: '#ff7b72', built_in: '#ffa657', type: '#ffa657', literal: '#79c0ff', number: '#79c0ff',
+    string: '#a5d6ff', comment: '#8b949e', meta: '#8b949e', title: '#d2a8ff', params: '#e6edf3', attr: '#79c0ff'
   };
 
   var LANG_LABEL = { csharp: 'C#', cs: 'C#', c: 'C', text: '실행 결과', '': '코드' };
@@ -164,7 +162,7 @@
   function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
   // 코드를 문법 강조해서 <span style="color:..">가 들어간 HTML로 돌려준다.
-  function highlight(text, lang, theme) {
+  function highlight(text, lang) {
     var name = lang === 'cs' ? 'csharp' : lang;
     if (!window.hljs || !name || !hljs.getLanguage(name) || name === 'text') {
       return esc(text);
@@ -173,7 +171,7 @@
     box.innerHTML = hljs.highlight(text, { language: name, ignoreIllegals: true }).value;
     box.querySelectorAll('span').forEach(function (sp) {
       var kind = (sp.className.match(/hljs-([a-z_]+)/) || [])[1];
-      var color = CODE_COLORS[theme][kind];
+      var color = CODE_COLORS[kind];
       sp.removeAttribute('class');
       if (color) {
         sp.setAttribute('style', 'color:' + color + ';' + (kind === 'comment' ? 'font-style:italic;' : ''));
@@ -182,34 +180,10 @@
     return box.innerHTML;
   }
 
-  // 강조된 HTML을 줄 단위로 자른다. 여러 줄에 걸친 <span>은 줄마다 다시 열고 닫는다.
-  function splitLines(html) {
-    var lines = [];
-    var cur = '';
-    var open = [];
-    var parts = html.match(/<span[^>]*>|<\/span>|\n|[^<\n]+/g) || [];
-    parts.forEach(function (t) {
-      if (t === '\n') {
-        lines.push(cur + open.map(function () { return '</span>'; }).join(''));
-        cur = open.join('');
-      } else if (t.indexOf('<span') === 0) {
-        open.push(t);
-        cur += t;
-      } else if (t === '</span>') {
-        open.pop();
-        cur += t;
-      } else {
-        cur += t;
-      }
-    });
-    lines.push(cur);
-    return lines;
-  }
-
   // ---------- 네이버 (스마트에디터 ONE) ----------
-  // 붙여넣을 때 남는 것: 글자 크기·굵기·글자색·형광펜, 표와 칸 배경색.
-  // 사라지는 것: 문단 여백, 목록, 인용, 접기, 고정폭 글꼴.
-  // 그래서 여백은 빈 줄로, 목록은 "•" 글자로, 인용·코드·답은 칸 하나짜리 표로 만든다.
+  // 붙여넣을 때 남는 것: 글자 크기·굵기·글자색, 표와 칸 배경색. 고정폭 코드는 네이버 소스코드 상자가 된다.
+  // 사라지는 것: 문단 여백, 목록, 인용, 접기.
+  // 그래서 여백은 빈 줄로, 목록은 "•" 글자로, 인용·답은 칸 하나짜리 표로 만든다.
   var NV = {
     blank: '<p style="margin:0;"><br></p>',
     h2: 'font-size:24px;font-weight:bold;color:#1f5f8b;',
@@ -219,8 +193,7 @@
     th: 'border:1px solid #d6dbe1;background-color:#eef3f8;padding:8px 10px;font-size:15px;font-weight:bold;color:#222222;',
     td: 'border:1px solid #d6dbe1;padding:8px 10px;font-size:15px;color:#333333;',
     box: 'border-collapse:collapse;width:100%;',
-    codeCell: 'border:1px solid #e1e4e8;background-color:#f6f8fa;padding:14px 16px;',
-    codeLine: 'font-family:' + MONO + ';font-size:14px;color:#24292f;line-height:1.6;',
+    codePre: 'font-family:' + MONO + ';font-size:14px;line-height:1.6;margin:0;padding:14px 16px;background:#272822;color:#f8f8f2;white-space:pre;overflow-x:auto;',
     noteCell: 'border:1px solid #d6e4f0;background-color:#f2f7fb;padding:12px 16px;',
     label: 'font-size:13px;font-weight:bold;color:#6e7781;'
   };
@@ -256,15 +229,11 @@
     return '<table style="' + NV.box + '"><tbody><tr><td style="' + cellStyle + '">' + innerHtml + '</td></tr></tbody></table>';
   }
 
+  // 네이버는 고정폭 글꼴 줄을 자체 "소스코드" 상자로 바꾼다 (2026-11-03 실제 붙여넣기에서 확인).
+  // 줄마다 나누면 상자가 줄 수만큼 생기므로, 코드 전체를 <pre> 하나로 넘겨 상자 하나에 담기게 한다.
   function nvCode(text, lang) {
-    var lines = splitLines(highlight(text.replace(/\n$/, ''), lang, 'light'));
-    var body = nvPara(LANG_LABEL[lang] || lang, NV.label);
-    lines.forEach(function (line) {
-      // 줄 맨 앞 공백과 연속 공백은 &nbsp;로 바꿔야 들여쓰기가 남는다
-      var html = line.replace(/(^|>)([^<]*)/g, function (m, a, txt) { return a + txt.replace(/ /g, '&nbsp;'); });
-      body += '<p style="margin:0;"><span style="' + NV.codeLine + '">' + (html === '' ? '&nbsp;' : html) + '</span></p>';
-    });
-    return nvBoxTable(NV.codeCell, body);
+    var label = nvPara(LANG_LABEL[lang] || lang, NV.label);
+    return label + '<pre style="' + NV.codePre + '">' + esc(text.replace(/\n$/, '')) + '</pre>';
   }
 
   function nvBlocks(parent) {
@@ -357,7 +326,7 @@
     }).join('');
     return '<div style="' + TS.codeCard + '"><div style="' + TS.codeBar + '">' + dots +
       '<span style="margin-left:8px;">' + esc(LANG_LABEL[lang] || lang) + '</span></div>' +
-      '<pre style="' + TS.pre + '"><code style="' + TS.preCode + '">' + highlight(text, lang, 'dark') + '</code></pre></div>';
+      '<pre style="' + TS.pre + '"><code style="' + TS.preCode + '">' + highlight(text, lang) + '</code></pre></div>';
   }
 
   function tsStyle(box) {
@@ -392,6 +361,10 @@
   function render(md, mode) {
     var box = document.createElement('div');
     box.innerHTML = marked.parse(md, { gfm: true });
+    // <summary> 안은 HTML이라 마크다운이 변환되지 않는다. `코드`만 직접 바꾼다.
+    box.querySelectorAll('summary').forEach(function (s) {
+      s.innerHTML = s.innerHTML.replace(/`([^`]+)`/g, '<code>$1</code>');
+    });
     return mode === 'naver' ? nvBlocks(box) : tsStyle(box);
   }
 
@@ -407,7 +380,7 @@
   var toastTimer = null;
 
   var HELP = {
-    naver: '<b>네이버</b>: 글쓰기 → 제목 칸에 "제목 복사" 붙여넣기 → 본문 칸 클릭 → "본문 복사" 후 Ctrl+V. 코드·표는 칸 하나짜리 표로 들어가고, 셀프 체크 답은 펼쳐진 상자로 들어간다.',
+    naver: '<b>네이버</b>: 글쓰기 → 제목 칸에 "제목 복사" 붙여넣기 → 본문 칸 클릭 → "본문 복사" 후 Ctrl+V. 코드는 네이버 소스코드 상자로, 셀프 체크 답은 펼쳐진 상자로 들어간다.',
     tistory: '<b>티스토리</b>: 글쓰기 → 오른쪽 위 "기본모드"를 "HTML"로 바꾸기 → "HTML 코드 복사" 후 Ctrl+V. 코드는 어두운 카드, 셀프 체크 답은 눌러서 펼치는 접기로 들어간다.'
   };
   var NOTE = {
