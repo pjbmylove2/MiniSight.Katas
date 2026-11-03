@@ -87,11 +87,11 @@
   .panel-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
   .panel-head h2 { margin: 0; font-size: 16px; font-weight: 700; }
   .panel-head span { font-size: 12px; color: var(--muted); }
-  input.text, textarea.edit {
+  input.text, select.text, textarea.edit {
     width: 100%; min-width: 0; font: inherit; font-size: 14px; color: var(--fg); background: var(--bg);
     border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px;
   }
-  input.text:focus-visible, textarea.edit:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  input.text:focus-visible, select.text:focus-visible, textarea.edit:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
   input.text[readonly] { background: transparent; border-color: transparent; padding-left: 0; font-weight: 600; font-size: 15px; }
   input.text.tags[readonly] { font-weight: 400; font-family: var(--font-mono); font-size: 13px; }
   textarea.edit { resize: vertical; line-height: 1.6; }
@@ -127,8 +127,16 @@
     <section class="bar" id="draftPanel" hidden>
       <div class="panel-head"><h2>글 재료</h2><span>새 글은 이 브라우저에만 저장된다</span></div>
       <div class="field">
-        <label for="notes">공부 메모 (정리 안 된 내용, 코드, 실행 결과 그대로)</label>
+        <label for="notes">글 재료 (메모, 코드, 실행 결과, 참고 내용을 정리 안 된 그대로 붙여넣기)</label>
         <textarea id="notes" class="edit notes" placeholder="예: event는 바깥에서 += -= 만 된다. Invoke는 부른 스레드에서 실행. 구독 해제 안 하면 메모리 누수..."></textarea>
+      </div>
+      <div class="field">
+        <label for="tone">말투</label>
+        <select id="tone" class="text">
+          <option value="friendly">친절하고 전문적인 존댓말 (~해요)</option>
+          <option value="formal">전문적인 존댓말 (~합니다)</option>
+          <option value="plain">평서체 (~다, 기존 공부 글과 같은 말투)</option>
+        </select>
       </div>
       <div class="field">
         <label for="ask">추가 요청 (선택)</label>
@@ -426,6 +434,10 @@
   var draftPanel = document.getElementById('draftPanel');
   var notesEl = document.getElementById('notes');
   var askEl = document.getElementById('ask');
+  var toneEl = document.getElementById('tone');
+  try { toneEl.value = localStorage.getItem('tone') || 'friendly'; } catch (e) { }
+  if (!toneEl.value) { toneEl.value = 'friendly'; }
+  toneEl.addEventListener('change', function () { try { localStorage.setItem('tone', toneEl.value); } catch (e) { } });
   var bodyEl = document.getElementById('body');
   var aiStatus = document.getElementById('aiStatus');
   var aiDraftBtn = document.getElementById('aiDraft');
@@ -606,35 +618,67 @@
   var aiBlocked = '';
   var lastBefore = null;
 
-  var WRITER_RULES = [
-    '너는 C#/.NET 개발 블로그 "K-프로그래밍"(티스토리)의 글을 쓰고 다듬는 편집자다.',
-    '규칙:',
-    '- 한국어 평서체(~다)로 쓴다. 독자는 C#/.NET Framework를 공부하는 개발자다.',
-    '- 메모와 본문에 있는 사실과 코드만 쓴다. 없는 API, 버전, 수치를 지어내지 않는다. 확실하지 않으면 쓰지 않는다.',
-    '- 짧은 메모는 풀어서 설명하되, 비유는 한 번만 짧게 쓴다.',
-    '- 구성: 도입 1~2문단 → "## 소제목" 여러 개 → 마지막 "## 정리". "# 제목"(H1)은 쓰지 않는다.',
-    '- 코드는 ```csharp 펜스, 실행 결과는 ```text 펜스로 쓴다. 비교할 것이 있으면 GFM 표를 쓴다.',
-    '- 자기 점검 문답은 <details><summary>질문</summary>(빈 줄)답(빈 줄)</details> 형식으로 쓴다.',
-    '- 제목은 검색에 걸리게 핵심 키워드를 넣어 40자 안쪽 한 줄로 쓴다. 태그는 5~8개.',
-    '출력 형식 (이 형식 말고 다른 말은 쓰지 않는다):',
-    '제목: <제목 한 줄>',
-    '태그: <쉼표로 구분한 태그>',
-    '---',
-    '<본문 마크다운>'
-  ].join('\n');
+  // 말투 선택 (기본: 친절한 존댓말). 고른 값은 이 브라우저에 기억한다.
+  var TONES = {
+    friendly: '친절하고 전문적인 존댓말(~해요). 옆자리 선배가 차분히 알려 주듯 쓰되, 용어와 설명은 정확하게 쓴다.',
+    formal: '전문적인 존댓말(~합니다). 기술 문서처럼 정확하고 간결하게, 그래도 딱딱하지 않게 쓴다.',
+    plain: '평서체(~다). 기존 공부 글과 같은 말투로, 짧고 분명하게 쓴다.'
+  };
+
+  function writerRules() {
+    return [
+      '너는 프로그래밍 블로그 "K-프로그래밍"(티스토리)의 전문 기술 편집자다. 독자는 C#/.NET을 공부하거나 현업에서 쓰는 개발자다.',
+      '',
+      '[1단계: 재료 파악 — 출력하지 말고 속으로만]',
+      '- 이 글의 주제 하나, 독자가 읽고 나서 할 수 있게 되는 것 하나를 정한다.',
+      '- 재료 속 핵심 개념, 코드, 실행 결과, 주의점, 그리고 독자가 막힐 만한 빠진 설명을 찾는다.',
+      '',
+      '[2단계: 구성]',
+      '- 도입 1~2문단: 이 글에서 무엇을 다루고 왜 필요한지.',
+      '- 그다음 "## 소제목"으로 나눈다. 재료에 맞게 고르되 보통 순서: 핵심 개념 → 코드와 설명 → 실행 결과 → 자주 하는 실수·주의할 점.',
+      '- 마지막은 "## 정리"(요점 3~5개 목록). 재료가 충분하면 그 뒤에 "## 자기 점검" 문답 2~3개.',
+      '- "# 제목"(H1)은 쓰지 않는다.',
+      '',
+      '[3단계: 쓰기]',
+      '- 말투: ' + TONES[toneEl.value || 'friendly'] + ' 글 전체에서 말투를 섞지 않는다.',
+      '- 한 문장에 한 가지만. 과장, 감탄사, 이모지, "정말 놀랍게도" 같은 군더더기는 쓰지 않는다.',
+      '- 전문 용어는 처음 나올 때 한 번 짧게 풀어 주고, 필요하면 영어 원어를 괄호로 붙인다.',
+      '- 추상적인 설명 뒤에는 재료 속 코드나 구체적인 예로 바로 보여 준다.',
+      '- 비교할 것이 둘 이상이면 GFM 표로 정리한다.',
+      '',
+      '[사실 기준]',
+      '- 재료의 코드와 실행 결과는 그대로 살린다. 오타나 명백한 컴파일 오류만 고치고, 고쳤다는 사실을 본문에 한 줄 적는다.',
+      '- 빈 설명은 널리 확립된 C#/.NET 지식으로 채워도 된다. 기준 버전은 .NET Framework 4.7.2 / C# 7.3 (재료가 다른 버전을 말하면 그쪽).',
+      '- 재료에 없는 프로젝트 사정, 수치, 측정 결과, 회사·제품 이름은 지어내지 않는다. 확실하지 않은 것은 쓰지 않는다.',
+      '',
+      '[형식]',
+      '- 코드는 ```csharp 펜스(주석은 꼭 필요한 곳에만 짧은 한국어), 실행 결과는 ```text 펜스.',
+      '- 자기 점검 문답은 <details><summary>질문</summary>(빈 줄)답(빈 줄)</details>.',
+      '- 제목: 검색에 걸릴 핵심 키워드를 넣은 40자 안쪽 한 줄. 태그: 5~8개, 짧은 단어 (예: C#, 닷넷, event).',
+      '',
+      '출력 형식 (이 형식 말고 다른 말은 쓰지 않는다):',
+      '제목: <제목 한 줄>',
+      '태그: <쉼표로 구분한 태그>',
+      '---',
+      '<본문 마크다운>'
+    ].join('\n');
+  }
 
   function clip(text, max) { return text.length > max ? text.slice(0, max) + '\n...(뒷부분 생략)' : text; }
 
   function draftPrompt(d) {
-    return WRITER_RULES + '\n\n아래 공부 메모로 블로그 글 초안을 써라.' +
-      (askEl.value.trim() ? '\n\n추가 요청: ' + askEl.value.trim() : '') +
-      '\n\n<공부 메모>\n' + clip(d.notes, 40000) + '\n</공부 메모>';
+    return writerRules() + '\n\n아래 글 재료를 파악해서 블로그 글 초안을 완성해라. 재료가 메모 수준으로 짧아도 독자가 따라올 수 있게 충분히 풀어 쓴다.' +
+      (askEl.value.trim() ? '\n\n추가 요청 (위 규칙보다 우선): ' + askEl.value.trim() : '') +
+      '\n\n<글 재료>\n' + clip(d.notes, 40000) + '\n</글 재료>';
   }
 
   function polishPrompt(d) {
-    return WRITER_RULES + '\n\n아래 글을 다듬어라. 내용과 코드는 지키고, 문장·구성·설명을 읽기 쉽게 고친다.' +
-      (askEl.value.trim() ? '\n\n추가 요청: ' + askEl.value.trim() : '') +
-      (d.notes.trim() ? '\n\n<참고 메모>\n' + clip(d.notes, 20000) + '\n</참고 메모>' : '') +
+    return writerRules() + '\n\n아래 "지금 글"을 다듬어라.' +
+      '\n- 글 재료와 비교해서 빠진 핵심 내용은 보충하고, 틀리거나 모호한 설명은 바로잡는다.' +
+      '\n- 흐름이 어색한 곳은 순서를 바꾸고, 말투를 하나로 통일하고, 긴 문장은 나눈다.' +
+      '\n- 코드의 동작은 바꾸지 않는다.' +
+      (askEl.value.trim() ? '\n\n추가 요청 (위 규칙보다 우선): ' + askEl.value.trim() : '') +
+      (d.notes.trim() ? '\n\n<글 재료>\n' + clip(d.notes, 20000) + '\n</글 재료>' : '') +
       '\n\n<지금 글>\n제목: ' + d.title + '\n태그: ' + d.tags.join(', ') + '\n---\n' + clip(d.md, 60000) + '\n</지금 글>';
   }
 
@@ -714,14 +758,14 @@
   function runAi(kind) {
     var d = current;
     if (!sample || aiBusy || !isDraft(d)) { return; }
-    if (kind === 'draft' && !d.notes.trim()) { aiStatus.textContent = '공부 메모를 먼저 넣어 주세요.'; return; }
+    if (kind === 'draft' && !d.notes.trim()) { aiStatus.textContent = '글 재료를 먼저 넣어 주세요.'; return; }
     if (kind !== 'draft' && !d.md.trim() && !(kind === 'meta' && d.notes.trim())) { aiStatus.textContent = '본문이 비어 있다. 먼저 "메모로 초안 만들기"를 눌러 주세요.'; return; }
     lastBefore = { d: d, title: d.title, tags: d.tags.slice(), md: d.md };
     aiBusy = true;
     aiCtl = new AbortController();
     aiUndoBtn.hidden = true;
     updateAiButtons();
-    aiStatus.textContent = '생각하는 중… (처음 한 번은 허용 창이 뜬다)';
+    aiStatus.textContent = kind === 'meta' ? '생각하는 중… (처음 한 번은 허용 창이 뜬다)' : '재료를 파악하는 중… 첫 글자까지 30초~1분쯤 걸린다 (처음 한 번은 허용 창이 뜬다)';
 
     if (kind === 'meta') {
       sample.json(metaPrompt(d), { modelTier: 'quick', cache: false, signal: aiCtl.signal }).then(function (r) {
@@ -736,6 +780,7 @@
     }
 
     sample(kind === 'draft' ? draftPrompt(d) : polishPrompt(d), {
+      modelTier: 'complex',   // 글 품질이 중요해서 가장 꼼꼼한 모델을 쓴다 (첫 글자까지 수십 초 걸릴 수 있다)
       cache: false,
       signal: aiCtl.signal,
       onText: function (u) {
