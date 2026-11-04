@@ -118,3 +118,4 @@ AI SDK와 구 프로그램 이름은 이 문서에서는 그대로 쓰고(실제
 
 - 회사 PC와 이 Claude 세션이 켜져 있어야 집에서 붙을 수 있다.
 - 세션이 끊겼다면 이 worktree(`.claude/worktrees/omnisight-study-plan-4bc7dd`)에서 새 세션을 열고 "Study/README.md 읽고 PROGRESS.md 이어서 하자"라고 하면 된다.
+- **Codex로 이어갈 때**: 이 worktree 폴더에서 Codex를 열면 루트의 `AGENTS.md`를 자동으로 읽는다. 진행 규칙·기록·단원 마무리 절차가 거기 정리돼 있다. 첫 마디는 "PROGRESS.md 이어서 하자" 또는 "Day 02 시작".

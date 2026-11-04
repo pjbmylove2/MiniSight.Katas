@@ -1,5 +1,4 @@
-﻿using Katas.Basics;
-using Katas.Day01;
+﻿using Katas.Day02;
 using System;
 
 namespace Katas
@@ -24,7 +23,8 @@ namespace Katas
             //KataB13.Run();
             //KataB14.Run();
             //KataDay01.Run();
-            KataDay01.RunAbandoned();
+            //KataDay01.RunAbandoned();
+            KataDay02.Run();
             Console.ReadKey();
         }
     }

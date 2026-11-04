@@ -59,11 +59,13 @@
     <Compile Include="Basics\KataB13.cs" />
     <Compile Include="Basics\KataB14.cs" />
     <Compile Include="Day01\KataDay01.cs" />
+    <Compile Include="Day02\KataDay02.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
