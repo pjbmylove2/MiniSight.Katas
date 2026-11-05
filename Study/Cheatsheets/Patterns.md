@@ -7,7 +7,7 @@
 | Composition Root (Pure DI) | 객체 조립은 시작 지점 한 곳 | `OmniSight/Application/ApplicationBootstrapper.cs:56-261`, `OmniSight/Application/Inspection/LegacyOcrInspectionFactory.cs:19-90` | 구체 타입을 아는 곳을 한 곳으로. 현장별 조립 교체 | 05 |
 | Simple Factory | 조건 → 구체 객체 | `OmniSight/Devices/DeviceFactory.cs:15-88`, `OmniSight/Devices/Cameras/CameraAdapterFactory.cs:9-31` | 벤더·설비 타입 분기를 한 곳에 | 04 |
 | Factory Method (Func 주입) | "만드는 방법"을 주입 | `OmniSight/Devices/Cameras/CallbackCameraAdapterBase.cs:41-47,90` | 재연결마다 새 SDK 객체, 테스트용 가짜 | 04 |
-| Adapter | SDK API → 우리 계약 | `OmniSight/Devices/Cameras/HikvisionCameraAdapter.cs`, `HikvisionCameraDriver.cs`, `OmniSight/Devices/SharedFolderAdapter.cs` | 파이프라인은 `IImageSourceDevice`만 앎 | 04 |
+| Adapter | SDK API → 우리 계약 | `OmniSight/Devices/Cameras/VendorBCameraAdapter.cs`, `VendorBCameraDriver.cs`, `OmniSight/Devices/SharedFolderAdapter.cs` | 파이프라인은 `IImageSourceDevice`만 앎 | 04 |
 | Template Method | 순서 고정 + 빈칸 hook | `OmniSight/Devices/DeviceBase.cs:19-115`, `CallbackCameraAdapterBase.cs`, `OmniSight/Vision/AiEngine/AiEngineBase.cs`, `OmniSight/UI/Controls/BaseUserControl.cs:83-110` | 상태 전이·해제 규칙을 한 곳에 | 03 |
 | Strategy (DI) | 알고리즘을 인터페이스로 교체 | `OmniSight/Application/Inspection/InspectionContracts.cs`, `InspectionPipeline.cs:23-52` | 전처리·룰·AI·보고·저장이 현장마다 다름 | 02, 13 |
 | (대조) switch 분기 | 종류별 분기를 한 함수에 | `OmniSight/Vision/Processing/RecipeImageProcessor.cs:76-91` | 구 프로그램과 1:1 비교 쉬움 | 16 |

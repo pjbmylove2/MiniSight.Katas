@@ -23,6 +23,66 @@ OmniSight의 `DeviceBase`가 바로 이 순서표다. "상태 확인 → 자식 
 
 코드부터 실행하고 한 조각씩 진행한다. 진행 계획은 ①순서표와 빈칸 ②상태 표시 ③실패와 다시 던지기 ④실패해도 정리하기 ⑤MiniSight 장치 초기화·시작·정지 ⑥시작 실패와 Faulted ⑦정리 순서 ⑧디버깅·뼈대 복습·셀프 체크다. 실제로 진행한 내용과 중간 Q&A를 조각마다 기록한다. 아래 기존 지도·Kata는 비교 참고 자료이며 회사 코드는 손코딩 뒤에 읽는다.
 
+### 복습 1 · 첫 순서표를 별도 파일에 다시 작성 (2026-11-05)
+
+사용자가 “day03 시작하자”라고 요청하여 완료 기록을 유지한 채 조각 1부터 복습한다. 기존 상태·예외 실습 코드는 보존하고 Katas 프로젝트의 Day03 폴더에 KataDay03Review.cs를 새로 추가해 손으로 작성한다. 별도 namespace를 사용해 기존 클래스와 충돌하지 않게 한다. 사용자 원본 파일은 직접 수정하지 않는다.
+
+**만드는 것:** 부모는 물 끓이기 → 스프 넣기 → 불 끄기 순서를 정하고, 자식은 스프 넣기만 구현한다. 정상 경로만 확인하며 상태·예외 처리는 다음 복습 조각에서 붙인다.
+
+```csharp
+using System;
+
+namespace Katas.Day03.Review
+{
+    public abstract class RamenRecipe
+    {
+        public void Cook()
+        {
+            Console.WriteLine("물 끓이기");
+            AddSoup();
+            Console.WriteLine("불 끄기");
+        }
+
+        protected abstract void AddSoup();
+    }
+
+    public sealed class RedRamen : RamenRecipe
+    {
+        protected override void AddSoup()
+        {
+            Console.WriteLine("빨간 스프 넣기");
+        }
+    }
+
+    public static class KataDay03Review
+    {
+        public static void Run()
+        {
+            RamenRecipe recipe = new RedRamen();
+            recipe.Cook();
+        }
+    }
+}
+```
+
+키워드 표는 바로 아래 원래 조각 1의 abstract/protected/override/sealed/부모 타입 변수 표를 함께 사용한다. namespace는 이름을 구분하는 주소이며, 이번 Katas.Day03.Review는 원래 Katas.Day03의 클래스와 별개다.
+
+**실행:** Program.Main에서 기존 `KataDay03.Run();`을 주석 처리하고 `Katas.Day03.Review.KataDay03Review.Run();`을 호출한다. 마지막 Console.ReadKey는 유지한다. Katas를 시작 프로젝트로 선택하고 Ctrl+F5로 실행한다. 기존 using Katas.Day03은 유지해도 된다.
+
+```text
+물 끓이기
+빨간 스프 넣기
+불 끄기
+```
+
+위 복습 코드를 임시 파일에 쓰고 실행 진입점만 추가해 C# 7.3 / x64 / .NET Framework 4.7.2 참조로 컴파일·실행하여 세 줄을 확인했다. 사용자 작성·실행은 아직 확인 전이다.
+
+**질문 1개:** 물 끓이기와 불 끄기 순서는 유지하면서 스프만 바꾸려면 부모 Cook과 자식 AddSoup 중 어디를 고칠까?
+
+<details><summary>답</summary>자식의 AddSoup 내용만 바꾼다. 부모 Cook의 전체 순서는 유지한다.</details>
+
+> **복습 확인 (2026-11-05):** 사용자는 “자식의 AddSoup”라고 답했다 ✅. 부모 Cook의 공통 순서는 유지하고 자식의 작업 내용만 바꾼다는 핵심을 재확인했다. 새 복습 파일 작성·사용자 실행 결과는 아직 별도 확인 전이다.
+
 ### 조각 1 · 순서는 부모가, 스프는 자식이
 
 **지금 만드는 것:** 부모 클래스가 조리 순서를 정하고 자식 클래스는 스프 넣는 부분만 구현하는 콘솔 예제.
@@ -103,6 +163,8 @@ Day03.KataDay03.Run();
 > **학습 확인:** 사용자는 "자식 클래스의 AddSoup만 고치면 된다"고 답했다(✅). 부모 Cook의 순서는 유지하고 자식의 단계 구현만 바꾼다는 Template Method의 핵심을 이해했다. 사용자 실행 결과는 아직 별도로 확인하지 않았다.
 
 ### 조각 2 · 조리 전·중·완료 상태 붙이기
+
+> **복습 2 (2026-11-05):** 사용자 로컬 KataDay03Review.cs에서 복습 1 구현과 Main의 복습 호출을 확인했다. 아래 상태 추가 코드는 이번에는 Katas.Day03.Review의 복습 파일에 작성한다. enum과 부모 RamenRecipe를 아래대로 추가·교체하고, Run은 기존 KataDay03Review 안에서 교체한다. RedRamen은 유지한다. 현재 복습 코드를 바탕으로 아래 변경을 적용한 임시 예제를 C# 7.3 / x64 / .NET Framework 4.7.2로 컴파일·실행하여 Idle/Cooking/Done 출력을 확인했고, 외부 State 대입은 CS0272로 거부됨을 확인했다. 사용자 원본 파일은 직접 수정하지 않았다. 복습 2 질문에 사용자는 “set은 private으로 되어 있어 내부에서만 set 가능하다”라고 답했다 ✅. 내부는 State를 선언한 RamenRecipe 클래스이며 자식 RedRamen과 외부 Run에서는 직접 대입할 수 없다고 보충했다. 복습 2 작성·실행 결과는 아직 별도 확인 전이다.
 
 **지금 만드는 것:** 부모 RamenRecipe가 조리 순서와 상태를 함께 관리한다. 외부 코드는 상태를 읽지만 직접 바꾸지 못한다.
 

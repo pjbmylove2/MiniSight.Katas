@@ -34,7 +34,7 @@ Claude에게:
 | R8 | 이벤트를 lock 안에서 발생 | `OmniSight/Application/VisionSystem.cs:495-528` | 구독자가 블로킹하면 교착 | 외부 코드 호출을 lock 안에서 |
 | R9 | 송신 루프 5ms 폴링 | `OmniSight/Devices/LegacyOcrSocketDevice.cs:398` | CPU·스레드풀 상시 점유 | 대기 방식 |
 | R10 | `LongRunning` + async 람다 | `OmniSight/Application/Inspection/InspectionPipeline.cs:96` | 전용 스레드 의도와 실제 불일치 | async 특성 |
-| R11 | Basler 어댑터가 공통 베이스를 안 씀(로직 중복) | `OmniSight/Devices/Cameras/BaslerCameraAdapter.cs` | 한쪽만 버그 수정될 위험 | 이식 이력 |
+| R11 | VendorA 어댑터가 공통 베이스를 안 씀(로직 중복) | `OmniSight/Devices/Cameras/VendorACameraAdapter.cs` | 한쪽만 버그 수정될 위험 | 이식 이력 |
 | R12 | 네이티브 핸들을 `IntPtr`로 관리(SafeHandle 아님) | `OmniSight/Vision/AiEngine/AiEngineBase.cs:17` | 예외 타이밍에 누수/이중 해제 위험 | 이식 단계 |
 | R13 | 호출처 없는 코드 | `RecipeRuleInspectionEngine.FindStrongestEdge`, `SharedFolderAdapter.IsStableFile` | 유지보수 혼란 | 정리 누락 |
 

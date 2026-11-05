@@ -61,6 +61,8 @@
     <Compile Include="Day01\KataDay01.cs" />
     <Compile Include="Day02\KataDay02.cs" />
     <Compile Include="Day03\KataDay03.cs" />
+    <Compile Include="Day03\KataDay03Review.cs" />
+    <Compile Include="Day04\KataDay04.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

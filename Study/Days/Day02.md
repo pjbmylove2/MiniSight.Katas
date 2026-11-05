@@ -709,7 +709,7 @@ public static void Run()
 **집에서 Claude에게:**
 ```text
 OmniSight/Devices/DeviceContracts.cs 전체와 InspectionPipeline.cs 23~52줄을 보여줘.
-InspectionPipeline이 Basler 카메라인지 공유폴더인지 모르는데도 동작하는 이유를 콘센트 비유로 설명해줘.
+InspectionPipeline이 VendorA 카메라인지 공유폴더인지 모르는데도 동작하는 이유를 콘센트 비유로 설명해줘.
 그리고 ICameraDevice가 멤버 없이 비어 있는 이유도.
 ```
 

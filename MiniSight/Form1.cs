@@ -4,6 +4,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using MiniSight.Devices.Cameras;
 
 namespace MiniSight
 {
@@ -127,6 +128,29 @@ namespace MiniSight
                 MessageBox.Show(ex.Message + Environment.NewLine 
                     + "정리 단계 실행: " + device.CleanupCalled + Environment.NewLine
                     + "최종 상태: " + device.State);
+            }
+        }
+
+        private async void button9_Click(object sender, EventArgs e)
+        {
+            using (IImageSource camera = CameraFactory.Create(CameraKind.Fake, "연습 카메라", null, 300))
+            {
+                camera.Initialize(CancellationToken.None);
+                camera.Start(CancellationToken.None);
+
+                ImageFrame frame = await camera.WaitFrameAsync(CancellationToken.None);
+                Mat borrowed = frame.Image;
+                string inside;
+
+                using (frame)
+                {
+                    camera.Stop();
+                    inside = "블록 안 이미지 있음: " + (frame.Image != null);
+                }
+             
+                MessageBox.Show(inside
+                    + Environment.NewLine + "블록 밖 이미지 없음: " + (frame.Image == null)
+                    + Environment.NewLine + "빌린 Mat 정리됨: " + borrowed.IsDisposed);
             }
         }
     }
