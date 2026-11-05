@@ -13,6 +13,8 @@ namespace MiniSight.Devices
 
         public override string Name { get { return _name; } }
         public bool FailOnStart { get; set; }
+        public bool FailOnStop { get; set; }
+        public bool CleanupCalled { get; private set; }
 
         protected override void OnInitialize(CancellationToken cancellationToken)
         {
@@ -30,11 +32,17 @@ namespace MiniSight.Devices
 
         protected override void OnStop()
         {
+            if (FailOnStop)
+            {
+                throw new InvalidOperationException(_name + " 정지 실패(테스트)");
+            }
+
             Console.WriteLine(" [" + _name + "] 촬영 정지");
         }
 
         protected override void OnDispose()
         {
+            CleanupCalled = true;
             Console.WriteLine(" [" + _name + "] 자원 해제");
         }
     }

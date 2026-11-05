@@ -25,6 +25,7 @@ namespace MiniSight.Devices
             try
             {
                 Stop();
+
             }
             finally
             {
