@@ -1,10 +1,12 @@
-﻿using MiniSight.Devices;
+﻿using MiniSight.App;
+using MiniSight.Config;
+using MiniSight.Devices;
 using OpenCvSharp;
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using MiniSight.Devices.Cameras;
 
 namespace MiniSight
 {
@@ -133,8 +135,23 @@ namespace MiniSight
 
         private async void button9_Click(object sender, EventArgs e)
         {
-            using (IImageSource camera = CameraFactory.Create(CameraKind.Fake, "연습 카메라", null, 300))
+            string path = Path.Combine(Application.StartupPath, "camera-study.json");
+            IImageSource camera;
+
+            try
             {
+                camera = Bootstrapper.BuildCamera(path);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("카메라 준비 실패: " + ex.Message);
+                return;
+            }
+
+            using (camera)
+            {
+                MessageBox.Show("읽어온 촬영 간격: " + ConfigStore.Instance.Current.IntervalMs + "ms");
+
                 camera.Initialize(CancellationToken.None);
                 camera.Start(CancellationToken.None);
 
@@ -147,7 +164,7 @@ namespace MiniSight
                     camera.Stop();
                     inside = "블록 안 이미지 있음: " + (frame.Image != null);
                 }
-             
+
                 MessageBox.Show(inside
                     + Environment.NewLine + "블록 밖 이미지 없음: " + (frame.Image == null)
                     + Environment.NewLine + "빌린 Mat 정리됨: " + borrowed.IsDisposed);
