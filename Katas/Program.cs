@@ -1,6 +1,5 @@
-﻿using Katas.Day05;
+﻿using Katas.Day06;
 using System;
-using static Katas.Day05.PowerDisplay;
 
 namespace Katas
 {
@@ -29,7 +28,8 @@ namespace Katas
             //KataDay03.Run();
             //KataDay03Review.Run();
             //KataDay04.Run();
-            KataDay05.Run();
+            //KataDay05.Run();
+            KataDay06.Run();
             Console.ReadKey();
         }
     }

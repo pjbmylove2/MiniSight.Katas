@@ -7,7 +7,7 @@
 | 단계 | 범위 | 상태 | 졸업일 |
 |---|---|---|---|
 | 1 초급 | B01~B14 + 졸업 시험 | **졸업** | 2026-11-03 |
-| 2 주니어 | Day01~28 (2회차) + 주차별 졸업 시험 | 진행 중 (Day05 핵심 기본 완료 → 다음 Day06) | 2026-11-03 시작 |
+| 2 주니어 | Day01~28 (2회차) + 주차별 졸업 시험 | 진행 중 (Day06 핵심 기본 완료 → 다음 Day07) | 2026-11-03 시작 |
 | 3 시니어 | S01~S12 | 대기 | |
 
 ## 게시 반영 기록
@@ -51,6 +51,8 @@
 
 | 2026-11-05 | Day05 | ☑ (2026-11-06 핵심 기본 완료) | 부분 (전체 3회 타이핑·동시성·디버깅 미확인) | | 조각 1의 공통 계약 설명·헤어드라이기 출력에 이어 조각 2~8 진행. Build가 생성·연결하고 Run이 사용한다는 설명 및 선풍기 출력 ✅. 조각 2 뼈대는 즉시 반환 형태로 작성했고 원본 본 줄 없음 확인 ✅. 조각 3 예외 객체 전달·finally→호출자 catch, 조각 4 정상 return 전 finally, 조각 5 별도 참조 result와 지역 변수 null 구분·사용 중 True/정리 후 False 설명·실행 ✅. 조각 6 Lazy 첫 Value 때 생성·같은 객체 재사용, 조각 7 숫자 복사 100과 함수 호출 시 150 차이 설명·실행 ✅. 조각 8 처음 Func 이점 설명 요청 △ → 실제 설정·고정 함수 비교, setter와 추가 갱신 책임, int 생성자 가정과 실제 Func 생성자, 자동 감시가 아니라 호출 시 읽기, 지역 변수와 멤버 필드 구별을 반복 보충. 이후 자기 말로 핵심 설명 ✅. 최종 콘솔 설정 창고 생성/변경 전 True/변경 후 False/테스트 True 직접 제출 ✅. Inspector 뼈대의 >를 힌트 후 >=로 수정 ✅; 이 뼈대의 원본 본 줄 여부는 미보고. MiniSight에서 기존 CameraFactory를 App.Bootstrapper로 연결, CameraConfig/ConfigStore Lazy 창고 작성, 내장 DataContractJsonSerializer 저장·읽기 구현. 추가 NuGet·Framework 업그레이드 없음. 사용자 button9 세 줄 True, JSON 500 저장, 700 파일 수정 후 읽기, 0 오류 안내와 촬영 결과 중단 확인. 마지막 BuildCamera(configPath)에 설정 읽기→생성 순서를 모은 뒤 사용자 700ms와 세 줄 True 재확인 ✅. 장치 교체 위치 이유는 처음 한곳 관리로만 답해 보충 △ → 구체 생성·연결을 모아 수정할 곳 감소, Build만 교체로 재답 ✅. 설정 오류 위험은 결과 이상·알 수 없는 문제로 답해 구체 이유 보충 △; Day06 재확인. 실제 소스 Katas·MiniSight C#7.3 빌드 성공, Katas는 AnyCPU 구성에 검증 PlatformTarget=x64를 적용했고 학생 설정은 유지. 실제 Kata 네 줄 정확 일치, 실제 ConfigStore 최초 파일 생성·700 읽기·null/0 거부·기존 설정 보존·700 재저장 확인. UI는 사용자 실행 보고, 실장비 아님. 단일 카메라/static Bootstrapper 범위이며 복수 카메라·DeviceManager/VisionSystem·IDisposable Bootstrapper/Issues·InitializeAsync/IProgress·동시 변경·원자적 저장·선택 디버깅은 미구현/미검증으로 이월. 전체 조각 독립 3회 타이핑 완료로 확대하지 않음. 다음 Day06 | 단원 마무리 반영 대상 |
 
+| 2026-11-06 | Day06 | ☑ (2026-11-09 재시작 후 핵심 기본 완료) | 부분 (MiniSight 6.3 조립·방송 주석 해제·VisionSystem Dispose, 디버깅 7절, 3번 타이핑 뼈대 미완) | | **1차(11-06~11-09)** MiniSight 코드부터: DeviceManager(ToArray, attempted.Add 후 Start·역순 롤백·AggregateException, 역순 Stop 오류 모으기, Dispose 던지지 않음)·VisionSystem(enum 3개, 튜플, lock, Start/Stop)과 button10~15 작성·실행 확인. 조각 1 ToArray △("서로 다른 목록" → 같은 공유 목록, 개수 정답·이유 빠짐 → 핵심 단어 보충), 조각 2 Dispose가 던지면 ✅(using=try/finally라 ②가 ①을 덮어씀), 튜플 반환 이점 △ → "모르겠어" → 식당 비유 재설명 후 빈칸 ②③ ✅ ①("잡아서"를 "튜플") △, button13 → MiniSight는 ThreadException에서 crash.log 후 Exit라 창 없이 꺼짐(강사 설명 정정), lock 없을 때 ✅(Running 되기 전 둘 다 통과 → Start 두 번). 조각 5 질문 전에 **"감이 안 온다"로 처음부터 재시작**. **2차(11-09)** 큰 그림(손님·창구·반장·학생) + 콘솔 Kata 조각 0~7을 A 사고 → B 고침으로: 0 거꾸로 끄기 △(순서 ✅, 깜깜한 사진 빠짐), 1 ToArray ✅(같은 곳을 가리킴, `manager._devices`로 다듬음), 2 Add 먼저 ✅ 동작 / △ "반쯤 열린 자원" 빠짐, 3 오류 모으기 ✅, 4 `_disposed` ✅, 5 Main에 try 없이 안 죽는 이유 ✅(세 층 흐름, 1차 △ 해결, 해제→끄기 용어 정정), 6 방송 예외가 쪽지 오염 ✅(State 먼저 바뀐 이유 보충), 7 `Running -> Running` ✅(경쟁 → 동기화 의심). 조각 3부터 "그래서 ○○"가 계속 들어감. 2차 Kata 집 실행 여부 미보고. MiniSight 리뷰: VisionSystem 방송 코드 주석 처리 + 주석 속 `handlers != null` 반대 비교, 자동 완성 `using static` 2줄 → 힌트로만 전달(미수정). 다음: Day07 | ☐ |
+
 ## 3단계 · 시니어 (주니어 졸업 후)
 
 | 날짜 | 단원 | 최소분량 | 결과물 | 막힌 곳 / 질문 |
@@ -87,6 +89,11 @@
 - Day03 블로그: "장비 클래스의 수명 관리를 Template Method로 고정한 이유" (상태 그림 포함)
 
 ## 다시 물어볼 질문
+
+- Day06: "왜?" 답에 "그래서 ○○가 생긴다/막는다"를 붙이기. 조각 0(깜깜한 사진)·조각 2(반쯤 열린 자원)에서 빠졌고 조각 3부터는 들어감. Day07 셀프 체크 다시 풀기에서 확인한다.
+- Day06: 예외를 잡는 층 세 개(반장 = 정리 후 `throw;`, 창구 = catch해서 튜플로 번역, ThreadException = 기록 후 종료)를 자기 말로. 1차 빈칸 ①을 "잡아서" 대신 "튜플"로 답함. Day07 백지 구조도, Day12 Task 예외 때 다시 확인한다.
+- Day06: `try`를 `for` 안/밖에 두는 차이(하나씩 처리 vs 전체 멈춤)와 `Stop`은 던지고 `Dispose`는 안 던지는 이유. Day09 자원 정리 때 MiniSight `DeviceBase.Dispose`(Stop이 던지면 같이 던짐)와 함께 다시 본다.
+- Day06 MiniSight 남은 것: VisionSystem 방송 주석 해제(비교 연산자 확인), 불필요 `using static` 2줄, `VisionSystem : IDisposable`, 6.3 Bootstrapper 조립 + 준비/시작/정지 버튼 + 폼 닫을 때 `?.Dispose()`. Day07 밀린 것으로 처리한다.
 
 - Day05: 설정 오류 시 중단해야 하는 구체 이유를 Day06에서 재확인한다. 사용자는 결과 이상·알 수 없는 문제를 답했고, 의도와 다른 설정으로 촬영하면 겉으로 정상처럼 보여도 결과를 신뢰할 수 없다고 보충했다. 정상/0 오류의 실제 UI 보고는 확인했다.
 - Day05: Func는 전달받은 함수 호출 시 실행하며 자동 감시가 아니다. 숫자 필드의 setter 갱신과 구별하는 설명은 재확인 통과. 다음 기준값 경계 테스트에서 >=와 >를 다시 확인한다. 조각 2 외 모든 3회 타이핑·원본 본 줄을 완료로 추정하지 않는다.

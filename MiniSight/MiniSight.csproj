@@ -93,6 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App\Bootstrapper.cs" />
+    <Compile Include="App\VisionSystem.cs" />
     <Compile Include="Config\CameraConfig.cs" />
     <Compile Include="Config\ConfigStore.cs" />
     <Compile Include="Devices\Cameras\CameraFactory.cs" />
@@ -102,6 +103,7 @@
     <Compile Include="Devices\Cameras\ICameraDriver.cs" />
     <Compile Include="Devices\Contracts.cs" />
     <Compile Include="Devices\DeviceBase.cs" />
+    <Compile Include="Devices\DeviceManager.cs" />
     <Compile Include="Devices\TestDevice.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
