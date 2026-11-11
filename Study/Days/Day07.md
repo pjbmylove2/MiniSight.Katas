@@ -10,6 +10,274 @@
 - **최소분량**: 2(밀린 것), 3(백지 시험)
 - **확장분량**: 5 리팩토링 과제, 블로그 2편째
 
+## 1-1. 이번 회차 진행 기록 (2026-11-09 ~ 11-10)
+
+이번 회차는 조각 1(밀린 것 ①) → 조각 2(밀린 것 ②) → 조각 3(백지 시험) → 조각 4(구술 면접 질문 1까지)로 진행했다. 구술 면접 꼬리 질문 1-1에서 "더 고민하고 공부해야겠다"로 멈추고 기록했다. 용어 카드·셀프 체크·블로그·리팩토링 과제는 하지 않았다.
+
+### 조각 1 · 밀린 것 ①: `VisionSystem.cs` 손보기
+
+**지금 하는 것:** Day06에서 남긴 MiniSight `VisionSystem`의 세 가지를 고친다.
+
+1. `ChangeState`의 방송 코드가 전부 주석이었다. 주석 속 `if (handlers != null) { return; }`는 비교가 반대라 그대로 풀면 방송이 절대 안 나간다. 힌트(Day06 조각 6 B의 `if` 줄과 비교 연산자 비교)로만 전달했다. 주석 안 코드는 컴파일러가 검사하지 않아 이런 버그가 숨는다.
+2. 자동 완성으로 들어온 `using static OpenCvSharp.Stitcher;`, `using static System.Windows.Forms.AxHost;` 삭제. 창구는 화면·영상 라이브러리를 몰라야 한다.
+3. `VisionSystem : IDisposable` 추가.
+
+```csharp
+public void Dispose()
+{
+    lock (_sync)
+    {
+        if (State == VisionSystemState.Disposed)
+        {
+            return;                                   // 두 번째 호출은 그냥 나감
+        }
+
+        _devices.Dispose();                           // 장치 정지 + 해제 (반장은 안 던짐)
+        ChangeState(VisionSystemState.Disposed, VisionMode.Manual, VisionStatus.Stop);
+    }
+}
+```
+
+`State == Disposed` 검사가 Day06 조각 4의 `_disposed` 깃발 역할을 한다.
+
+사용자 `button12` 실행 결과 (예상 출력과 일치, `로그 수신:` 두 번):
+
+```text
+[시스템] Created -> Initializing/Manual/Stop
+예외 발생: 'System.InvalidOperationException'(MiniSight.exe)
+[시스템] 구독자 오류(무시하고 계속): 화면 갱신 실패
+    로그 수신: Initializing
+카메라1: Created -> Initializing
+ [카메라1] 연결
+카메라1: Initializing -> Ready
+[시스템] Initializing -> Ready/Manual/Stop
+예외 발생: 'System.InvalidOperationException'(MiniSight.exe)
+[시스템] 구독자 오류(무시하고 계속): 화면 갱신 실패
+    로그 수신: Ready
+결과: True / 준비 완료
+```
+
+> **Q. 예상 출력에 없던 `예외 발생: 'System.InvalidOperationException'(MiniSight.exe)` 줄은 무엇인가?**
+> 코드가 아니라 VS 디버거가 F5 실행 때 찍는 first-chance 예외 알림이다. 예외가 **던져진 순간** 잡혔는지와 상관없이 찍힌다. 그래서 고장 난 구독자의 throw(디버거 알림)와 우리 catch(`구독자 오류`)가 항상 짝으로 나온다. Ctrl+F5에서는 안 나온다. 짝 없이 반복되면 어딘가에서 예외를 던지고 조용히 삼키는 곳이 있다는 신호이고, 예외 설정(Ctrl+Alt+E)에서 해당 예외를 체크하면 던지는 순간에 멈춰 위치를 볼 수 있다.
+
+**질문:** 새 `Dispose`는 `_devices.Dispose()`를 `try/catch`로 감싸지 않았다. 괜찮은 이유는?
+
+<details><summary>답과 사용자 확인</summary>
+
+`DeviceManager.Dispose` 안에 장치마다 `try/catch`가 있고 기록만 하고 던지지 않는다. 그래서 창구의 `Dispose`도 중간에 끊기지 않고 `ChangeState(Disposed)`까지 가며, 다른 오류가 진행 중이어도 진짜 원인을 덮어쓰지 않는다. 안 던지는 약속은 아래(장치 → 반장 → 창구)에서부터 쌓인다. 반대로 던지는 `Stop()`을 부를 때는 창구가 감싼다.
+
+사용자 ✅: "Dispose 안에 중복 검사도 있고 그 안에 try/catch가 따로 있다." "그래서" 부분은 보충.
+</details>
+
+### 조각 2 · 밀린 것 ②: `Bootstrapper`로 시스템 조립 + 준비/시작/정지 버튼
+
+**지금 하는 것:** 버튼마다 하던 `new DeviceManager(...)`, `new VisionSystem(...)`을 조립 책상 한 곳으로 모으고, Form1은 완성된 창구 하나만 받는다.
+
+**비유:** 조립 책상에서 자동차 한 대를 통째로 조립해 손님에게 열쇠(창구) 하나만 준다.
+
+`App/Bootstrapper.cs`:
+
+```csharp
+public static VisionSystem BuildSystem(string configPath)
+{
+    IImageSource camera = BuildCamera(configPath);              // ① 설정 읽고 카메라 만들기 (Day05)
+    IDevice light = new TestDevice("조명");                      // ② 조명 (지금은 연습 장치)
+    DeviceManager devices = new DeviceManager(new IDevice[] { light, camera });   // ③ 조명 먼저 켜지게
+    return new VisionSystem(devices);                           // ④ 이제 주인은 VisionSystem
+}
+```
+
+`Form1.cs` (버튼 `button16` 준비 / `button17` 시작 / `button18` 정지):
+
+```csharp
+private VisionSystem _system;          // 창구 열쇠 (준비를 누를 때 만들어짐)
+
+private void button16_Click(object sender, EventArgs e)       // 준비
+{
+    if (_system == null)
+    {
+        string path = Path.Combine(Application.StartupPath, "camera-study.json");
+        try
+        {
+            _system = Bootstrapper.BuildSystem(path);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("조립 실패: " + ex.Message);
+            return;
+        }
+        _system.StateChanged += OnSystemStateChanged;
+    }
+
+    (bool ok, string message) result = _system.Initialize(CancellationToken.None);
+    if (!result.ok)
+    {
+        MessageBox.Show(result.message);
+    }
+}
+
+private void button17_Click(object sender, EventArgs e)       // 시작
+{
+    if (_system == null)
+    {
+        MessageBox.Show("먼저 준비를 누르세요.");
+        return;
+    }
+
+    (bool ok, string message) result = _system.Start(CancellationToken.None);
+    if (!result.ok)
+    {
+        MessageBox.Show(result.message);
+    }
+}
+
+private void button18_Click(object sender, EventArgs e)       // 정지
+{
+    if (_system == null)
+    {
+        MessageBox.Show("먼저 준비를 누르세요.");
+        return;
+    }
+
+    (bool ok, string message) result = _system.Stop();
+    if (!result.ok)
+    {
+        MessageBox.Show(result.message);
+    }
+}
+
+private void OnSystemStateChanged(object sender, StateChangedEventArgs e)
+{
+    Text = "MiniSight - " + e.State + "/" + e.Mode + "/" + e.Status;
+}
+
+protected override void OnFormClosed(FormClosedEventArgs e)
+{
+    if (_system != null)
+    {
+        _system.StateChanged -= OnSystemStateChanged;         // 구독 먼저 끊고
+    }
+    _system?.Dispose();                                       // 창구 정리 → 반장 → 장치 전부
+    base.OnFormClosed(e);
+}
+```
+
+| 코드 | 역할 | 같은 뜻의 긴 코드 |
+|---|---|---|
+| `protected override void OnFormClosed(...)` | 폼이 닫힐 때 WinForms가 부르는 메서드를 덮어씀 | 디자이너 `FormClosed` 이벤트 메서드 |
+| `base.OnFormClosed(e);` | 원래 하던 일(FormClosed 구독자 알림)도 하게 함 | — |
+| `_system?.Dispose();` | 준비를 한 번도 안 눌렀으면(null) 넘어감 | `if (_system != null) { _system.Dispose(); }` |
+
+눌러 볼 순서와 기대 결과: 시작 먼저 → "먼저 준비를 누르세요." / 준비 → 제목 `MiniSight - Ready/Manual/Stop` / 정지 → "운전 중이 아닙니다." / 시작 → `Ready/Auto/Running` / 시작 한 번 더 → "이미 운전 중입니다." / 정지 → `Ready/Manual/Stop` / 창 닫기 → 정리 로그. 운전 중 받아 가는 곳이 없어 `큐 가득 참 -> #N 버림`이 반복될 수 있다(검사 연결은 Day13). WinForms 실행 출력은 강사가 확인하지 못했고, 사용자 실행 결과도 **미보고**.
+
+`OnSystemStateChanged`에서 `Text`를 바로 바꿀 수 있는 건 지금은 버튼(UI 스레드)이 부른 방송이라서다. PLC 스레드가 `Start`를 부르면 `BeginInvoke`가 필요하다(2주차).
+
+**질문:** Form1은 카메라도 DeviceManager도 변수로 갖고 있지 않다. 창을 닫으면 카메라는 누가, 어떤 순서로 정리하나?
+
+<details><summary>답과 사용자 확인</summary>
+
+창 닫기 → `Form1.OnFormClosed`(`_system?.Dispose()`) → `VisionSystem.Dispose`(`_devices.Dispose()`) → `DeviceManager.Dispose`(역순) → 연습 카메라 → 조명. Bootstrapper는 `static`이고 조립해서 돌려주고 끝이라 아무것도 갖고 있지 않다. 정리 체인은 만든 곳이 아니라 **필드로 갖고 있는 곳**을 따라간다. 그래서 Form1은 `_system?.Dispose()` 한 줄만 부르면 된다.
+
+사용자 △: "Bootstrapper >> VisionSystem >> DeviceManager >> light >> camera, Bootstrapper가 다 가지고 있다. 그래서 Form1은 생성 및 해제 함수만 호출하면 된다." → Bootstrapper는 안 갖고 있음(주인은 Form1), 장치는 역순(카메라 → 조명)으로 정정. 재확인 `{ light, camera, camera2 }`의 정리 순서 ✅ "camera2 → camera → light".
+</details>
+
+### 조각 3 · 백지 시험 (20분)
+
+아무것도 안 보고 ① Main부터 장치가 켜질 때까지 객체 순서 ② 패턴 이름 7개 ③ `DeviceState` 상태 그림 ④ 롤백·Stop·Dispose 순서 ⑤ ImageFrame 소유권을 그린다.
+
+사용자 제출(요약): ① Main → Mutex → 그물 3개 → Form1 → (준비) Bootstrapper.BuildSystem(ConfigStore) → "DeviceManager에 CameraFactory가 있고 VisionSystem은 따로" ② Bootstrapper = Singleton, CameraFactory = Factory ③ Created → Initializing → Ready → Running → Stopped → Disposed ④ 켜기 조명 → 카메라1 → 카메라2, 해제 카메라2 → 카메라1(에러) → 조명 ⑤ 빈칸.
+
+**정답 정리**
+
+① 객체가 넘겨지는 순서 (안쪽에서 바깥으로, 마트료시카):
+
+```text
+Main
+ ├ Mutex 확인 (두 번 실행 막기)
+ ├ 그물 3개 등록 (UI / 백그라운드 / Task 예외)
+ └ Application.Run(new Form1())
+      └ [준비 버튼] Bootstrapper.BuildSystem(path)
+           ├ ① BuildCamera
+           │    ├ ConfigStore.Instance.Load(path)   ← 설정 창고에서 JSON 읽기
+           │    └ CameraFactory.Create(Kind=Fake)   ← 종류 보고 카메라 만들기
+           │         └ new DriverCameraAdapter(... FakeCameraDriver ...)
+           ├ ② new TestDevice("조명")
+           ├ ③ new DeviceManager({ 조명, 카메라 })
+           └ ④ new VisionSystem(devices)
+      └ Form1._system = 그 창구
+```
+
+② 패턴 (한 동사로 외우기):
+
+| 클래스 | 패턴 | 한 동사 |
+|---|---|---|
+| Bootstrapper | Composition Root | 조립한다 |
+| ConfigStore | Singleton | 하나만 있다 |
+| CameraFactory | Factory | 만든다 |
+| DriverCameraAdapter | Adapter | 모양을 맞춘다 |
+| DeviceBase | Template Method | 순서를 고정한다 |
+| VisionSystem | Facade | 창구가 된다 |
+| StateChanged / FrameCaptured | Observer | 방송한다 |
+
+③ `DeviceState` (MiniSight `DeviceBase.cs` 기준):
+
+```text
+Created ──Initialize──▶ Initializing ──성공──▶ Ready ──Start──▶ Running ──Stop──▶ Stopped
+                             │                   ▲                                 │
+                             │                   └──────────── Start ◀──────────────┘  (다시 켜기)
+                             └──실패──▶ Faulted ◀── Start 실패 / Stop 실패
+                                          │
+                                          └──Initialize──▶ Initializing   (복구는 준비부터)
+
+어느 상태에서든 ──Dispose──▶ Disposed  (끝, 다시 못 씀)
+```
+
+④ 순서는 셋 다 역순(카메라2 → 카메라1 → 조명), 실패 처리만 다르다.
+
+| 상황 | 실패하면 |
+|---|---|
+| Start 실패 롤백 (실패한 장치 포함) | 처음 원인 + 끄다 난 오류를 모아 `AggregateException` |
+| Stop | 하나 실패해도 계속 끄고, 끝나면 모아서 던짐 |
+| Dispose | 하나 실패해도 계속, 기록만 하고 안 던짐, 한 번만 |
+
+⑤ ImageFrame 소유권 (`DriverCameraAdapter.OnFrame`):
+
+```text
+드라이버가 Mat을 줌
+ → new ImageFrame(...)                    ← 어댑터가 만듦 (주인 = 어댑터)
+ → FrameCaptured?.Invoke(this, frame)     ← ① 이벤트로 "보여 주기만"
+ → _queue.TryAdd(frame) 성공 → frame = null   ← ② 큐로 넘김 (주인 바뀜)
+   실패(큐 가득) → finally에서 frame.Dispose()
+ → WaitFrameAsync()로 꺼낸 쪽              ← ③ 새 주인, 다 쓰면 using으로 Dispose
+```
+
+| 받는 방법 | 비유 | 책임 |
+|---|---|---|
+| 이벤트(`FrameCaptured`) | 박물관 그림 구경 | 핸들러 안에서만 유효. 나중에 쓰려면 `Clone`하고 그건 내가 Dispose |
+| `WaitFrameAsync` | 선물로 받음 | 내가 주인. 다 쓰면 `using`으로 Dispose |
+
+<details><summary>채점과 사용자 확인</summary>
+
+1차: ① △(앞부분 순서 정확, CameraFactory가 DeviceManager 안에 있다·VisionSystem은 따로 → 안쪽에서 바깥쪽으로 넘겨짐으로 정정), ② 1/7(Bootstrapper를 Singleton으로, Bootstrapper·ConfigStore 혼동), ③ △(큰 줄기 맞음, Faulted와 `Stopped → Running`·실패 → Faulted·`Faulted → Initializing` 빠짐), ④ △(역순은 맞음, 롤백·Stop·Dispose가 한 줄에 섞임), ⑤ 빈칸. 합격 기준(패턴 6/7, 상태 오류 0, "핸들러 안에서만 유효") 미달.
+
+재시험: ② 클래스 7개 패턴 **7/7 ✅**. ⑤ "이벤트로 받은 프레임을 핸들러 뒤에도 쓰려면?"에 "복사해서 쓰거나, 그대로 들고 있으면 메모리가 해제가 안 된다" △ → Clone은 정답, 그대로 들고 있으면 누수가 아니라 **주인이 먼저 해제해서** 빈 이미지·`NullReferenceException`·깨진 화면이 난다로 정정(누수는 Clone한 쪽을 Dispose하지 않을 때). ①·③은 설명으로 이해, 재시험 안 함.
+</details>
+
+### 조각 4 · 구술 면접 (질문 1에서 멈춤)
+
+답하는 요령: 결론 한 마디 → 이유(그래서 ○○) → 내 코드 예시 하나.
+
+**질문 1:** "MiniSight에서 화면 버튼을 누르면 카메라가 켜지기까지 어떤 객체들을 거치는지, 왜 그렇게 나눴는지 1분 정도로 설명해 주세요."
+
+<details><summary>모범 답과 사용자 확인</summary>
+
+모범 답: "버튼을 누르면 Form1이 창구(VisionSystem) 하나에 '시작'을 부탁하고, 창구는 반장(DeviceManager)에게, 반장은 조명과 카메라를 순서대로 켭니다. 이 묶음은 시작할 때 Bootstrapper가 한 곳에서 조립해 Form1에 건네줍니다. 그래서 Form1은 장치가 몇 개인지, 어느 회사 카메라인지 몰라도 되고, 장치를 바꿔도 화면 코드는 그대로입니다."
+
+사용자 △: 실행 순서(Mutex → 안전망 3개 → 메인 폼)로 시작해 따라가기 쉬웠고 패턴 이름을 섞은 점은 좋음. 정정 3군데: ① "Bootstrapper 안에 DeviceManager가 있다" → 조립해서 건네주고 끝, 창구를 가진 건 Form1 ② "DeviceManager가 Facade" → Facade는 VisionSystem ③ "어댑터 패턴으로 하나의 베이스 객체를 구현받아" → 상속해서 순서 고정은 Template Method(`DeviceBase`), 벤더 SDK를 감싸는 건 Adapter(`DriverCameraAdapter`). "왜 나눴나"가 빠짐. MiniSight에 아직 없는 PLC를 있는 것처럼 말함 → 만든 것과 계획을 구분.
+</details>
+
+**꼬리 질문 1-1 (보류):** "Form1이 카메라와 조명을 직접 `new` 해서 직접 `Start`를 부르면 현장에서 어떤 문제가 생기나?" 사용자가 "더 고민하고 공부해야겠다"로 보류. 고민 재료: 직접 만드는 `button14`와 창구를 쓰는 `button17` 비교, "카메라를 2대로 늘리면 몇 군데를 고치나", 순서·실패(롤백)·변경(Factory/조립 책상) 중 하나를 골라 구체적으로. 다시 읽을 곳: Day05 조각 1~2, Day06 2절 그림과 조각 5.
+
 ## 2. 시간표
 
 | 시간 | 할 일 |

@@ -7,7 +7,8 @@
 | 단계 | 범위 | 상태 | 졸업일 |
 |---|---|---|---|
 | 1 초급 | B01~B14 + 졸업 시험 | **졸업** | 2026-11-03 |
-| 2 주니어 | Day01~28 (2회차) + 주차별 졸업 시험 | 진행 중 (Day06 핵심 기본 완료 → 다음 Day07) | 2026-11-03 시작 |
+| 2 주니어 | Day01~28 (2회차) + 주차별 졸업 시험 | 진행 중 (Day08 Thread·ThreadPool·Task 완료 → Day09 조각 0~5 진행 후 2026-11-11 특강으로 전환. Day09 조각 6·7은 특강 뒤 확인. Day07은 나중에 다시 하기) | 2026-11-03 시작 |
+| 2.5 특강 | 사과 공장 주말 특강 32교시 + 작품 PipelineLab | **진행 중** (2026-11-11 시작, Day09 조각 0~5 뒤 사용자 요청으로 먼저 시작) | |
 | 3 시니어 | S01~S12 | 대기 | |
 
 ## 게시 반영 기록
@@ -53,6 +54,9 @@
 
 | 2026-11-06 | Day06 | ☑ (2026-11-09 재시작 후 핵심 기본 완료) | 부분 (MiniSight 6.3 조립·방송 주석 해제·VisionSystem Dispose, 디버깅 7절, 3번 타이핑 뼈대 미완) | | **1차(11-06~11-09)** MiniSight 코드부터: DeviceManager(ToArray, attempted.Add 후 Start·역순 롤백·AggregateException, 역순 Stop 오류 모으기, Dispose 던지지 않음)·VisionSystem(enum 3개, 튜플, lock, Start/Stop)과 button10~15 작성·실행 확인. 조각 1 ToArray △("서로 다른 목록" → 같은 공유 목록, 개수 정답·이유 빠짐 → 핵심 단어 보충), 조각 2 Dispose가 던지면 ✅(using=try/finally라 ②가 ①을 덮어씀), 튜플 반환 이점 △ → "모르겠어" → 식당 비유 재설명 후 빈칸 ②③ ✅ ①("잡아서"를 "튜플") △, button13 → MiniSight는 ThreadException에서 crash.log 후 Exit라 창 없이 꺼짐(강사 설명 정정), lock 없을 때 ✅(Running 되기 전 둘 다 통과 → Start 두 번). 조각 5 질문 전에 **"감이 안 온다"로 처음부터 재시작**. **2차(11-09)** 큰 그림(손님·창구·반장·학생) + 콘솔 Kata 조각 0~7을 A 사고 → B 고침으로: 0 거꾸로 끄기 △(순서 ✅, 깜깜한 사진 빠짐), 1 ToArray ✅(같은 곳을 가리킴, `manager._devices`로 다듬음), 2 Add 먼저 ✅ 동작 / △ "반쯤 열린 자원" 빠짐, 3 오류 모으기 ✅, 4 `_disposed` ✅, 5 Main에 try 없이 안 죽는 이유 ✅(세 층 흐름, 1차 △ 해결, 해제→끄기 용어 정정), 6 방송 예외가 쪽지 오염 ✅(State 먼저 바뀐 이유 보충), 7 `Running -> Running` ✅(경쟁 → 동기화 의심). 조각 3부터 "그래서 ○○"가 계속 들어감. 2차 Kata 집 실행 여부 미보고. MiniSight 리뷰: VisionSystem 방송 코드 주석 처리 + 주석 속 `handlers != null` 반대 비교, 자동 완성 `using static` 2줄 → 힌트로만 전달(미수정). 다음: Day07 | ☐ |
 
+| 2026-11-09 | Day07 | ☑ (2026-11-10, 백지 시험 기준 일부 미달) | 부분 (구술 면접 질문 2~5, 용어 카드, 셀프 체크, 블로그, 리팩토링 과제 미실행) | | 조각 1 밀린 것 ①: VisionSystem 방송 주석 해제(주석 속 `!=` 반대 비교는 힌트로만)·`using static` 2줄 삭제·`IDisposable` 추가 → 사용자 `button12` 출력 일치(`로그 수신` 2번). 디버거 `예외 발생:` 줄 = first-chance 알림(throw/catch 짝)으로 설명. 질문 "Dispose를 try로 안 감싸도 되는 이유" ✅(반장 Dispose 안에 장치별 try/catch, "그래서" 보충). 조각 2 밀린 것 ②: `Bootstrapper.BuildSystem` + Form1 준비/시작/정지(button16~18)·`OnSystemStateChanged`·`OnFormClosed`에서 `-=` 후 `_system?.Dispose()` 코드 전달, **사용자 실행 결과 미보고**. 질문 "카메라는 누가 정리?" △(Bootstrapper가 다 갖고 있다·light → camera 순 → 주인은 Form1, 역순 정정) → 재확인 `{light, camera, camera2}` ✅. 조각 3 백지 시험 1차: ① △(CameraFactory가 DeviceManager 안·VisionSystem 따로), ② 1/7(Bootstrapper=Singleton), ③ △(Faulted·재시작·복구 화살표 빠짐), ④ △(역순 맞음, 롤백/Stop/Dispose 섞임), ⑤ 빈칸 → 설명 후 ② 재시험 **7/7 ✅**, ⑤ "Clone ✅ / 그대로 들고 있으면 메모리 해제 안 됨" △(주인이 먼저 해제 → 빈 이미지·NRE로 정정). 조각 4 구술 면접 질문 1 △(Bootstrapper가 DeviceManager를 가짐·DeviceManager=Facade·Template Method/Adapter 혼동·없는 PLC 언급·"왜 나눴나" 빠짐). 꼬리 질문 1-1(Form1이 직접 new/Start하면?)은 사용자가 "더 고민하고 공부해야겠다"로 보류. 다음: Day08 | ☐ |
+| 2026-11-10 | Day08 | ☑ (2026-11-10 조각 0~7) | 부분 (4.3 LongRunning+async, 실습 A 결과 보고, 3번 타이핑 뼈대 미실시) | | 조각마다 "Program.cs 전부 지우고"로 안내했다가 조각 7에서 앞 코드가 안 남아 사용자 지적 → `Katas/Day08/Day08Kata.cs`에 `Chunk0()`~`Chunk5()`·`Chunk7Practice()`·`EggBoiler`로 모아 둠(컴파일·실행 확인), 앞으로 조각은 KataDayNN.cs 메서드로 쌓기. 조각 0 Join 없이도 일꾼이 끝까지 씻는 이유 "작업자 스레드가 안 끝나서" ✅(메인이 아니라 프로세스가 기다림으로 정정). 조각 1 감시 스레드 IsBackground "false, 끝까지 로그 남겨야" △ → 무한 루프라 프로세스가 안 꺼짐, true + Dispose 정리 → 재답 ✅(무한 루프·프로세스 단어 보충). 조각 2 WaitOne true/false ✅(꺼질 때 반응 없음·빠져나오는 경우 빠짐 보충). 조각 3 사용자 첫 타이핑에서 Dispose 가드 `if (!_disposed)` 뒤집힘 → 퇴근 로그 없음 단서로 힌트, 사용자 수정. 곁가지 Q: `while (!WaitOne(5000))`은 처음에 5초 먼저 기다림(먼저 일하기 모양 보충). Set/Join 순서 바꾸기 △(민수 ✅, 철수·영희도 2초씩 → 7651ms 직접 실행으로 보여 줌, 벨은 객체마다 따로). 조각 4 EggBoiler가 Thread인 이유 △(표 결론만 → 이름·우선순위, 스레드풀 고갈 보충). 곁가지 Q: FA 24시간 Thread/Task 선택 기준표. 조각 5 고갈 이유 1차 강사 문장 그대로 옮김 → 빈칸 틀로 재요청 → 자기 말로 ✅(LongRunning은 붙잡는 쪽에 붙임 보충). 조각 6 MiniSight HealthSnapshot/HealthMonitor 작성(Form1이 생성·정리, Bootstrapper는 안 가짐), 사용자 실행 스레드 12 → 16 → 16(Fake 카메라 Timer = 스레드풀, 정지 뒤 대기 스레드로 해석, 정체 미확인). try를 while 밖에 두면 ✅("그래서" 연결, 조용히 죽음·Time 보충, Day06 try 위치 약점 해결). 조각 7 스레드 창: 실습 A 결과 미보고, 실습 B에서 이름 없는 스레드 호출 스택이 빈칸 → C# 코드를 실행 중이 아님(대기) 설명. Day07 조각 2 Form1 버튼 코드 작성 확인(MiniSight 파일). 다음: Day09 | ☐ |
+
 ## 3단계 · 시니어 (주니어 졸업 후)
 
 | 날짜 | 단원 | 최소분량 | 결과물 | 막힌 곳 / 질문 |
@@ -90,6 +94,15 @@
 
 ## 다시 물어볼 질문
 
+- **Day07 다시 하기 (사용자 요청 2026-11-10):** "day7은 나중에 다시 해야겠어". 이번 주말 버퍼 등에 백지 시험 ①③⑤와 구술 면접 꼬리 질문 1-1, 면접 질문 2~5를 다시 한다.
+- Day08: "왜?"를 표의 결론으로 답하는 습관(조각 4 "어울려서", 조각 5 강사 문장 그대로). 원인 → 결과 → 해결을 자기 말로 잇기. Day09 셀프 체크에서 확인한다.
+- Day08: 객체마다 신호(`_stop`)가 따로라서 `Join`을 `Set`보다 먼저 하면 모두 시간 초과(7651ms). `Set → Join(시간제한) → Dispose` 순서를 자기 말로. Day09 자원 정리 때 다시 본다.
+- Day08: Thread 안에서 안 잡은 예외가 프로세스를 죽이는 것은 표로만 봄(실행 안 함). Day12 Task 예외·전역 처리기 복습 때 직접 확인한다.
+- Day08 MiniSight: 시작/정지 반복 후 스레드 수 고정 여부(누수 확인), 남은 스레드 정체(네이티브 디버깅). Day13 메모리 누수 실험 때 HealthMonitor 값으로 다시 본다.
+
+- Day07 구술 면접 꼬리 질문 1-1 보류: "Form1이 카메라·조명을 직접 new 하고 직접 Start를 부르면 현장에서 어떤 문제가 생기나?" 순서·롤백·변경 범위 중 하나를 "그래서 ○○"로 답한다. 사용자가 스스로 고민 후 답하기로 함. 1주차 졸업 시험 또는 Day14 복습 때 면접 질문 1~5와 함께 다시 한다.
+- Day07 백지 시험 재확인: ① 객체가 안쪽에서 바깥으로 넘겨지는 순서(카메라·조명 → DeviceManager → VisionSystem → Form1), ③ DeviceState의 Faulted·`Stopped → Running`·`Faulted → Initializing`, ⑤ "이벤트로 받은 프레임은 핸들러 안에서만 유효, 그대로 들고 있으면 주인이 먼저 해제". 패턴 7개는 재시험 통과. Day09 자원 정리, Day11 FrameQueue 때 다시 확인한다.
+- Day07: Bootstrapper는 조립하고 끝(아무것도 안 가짐), Facade는 VisionSystem, 상속으로 순서 고정 = Template Method vs 감싸기 = Adapter. 백지 시험과 면접에서 두 번 섞임. Day16 Strategy 비교 때 다시 확인한다.
 - Day06: "왜?" 답에 "그래서 ○○가 생긴다/막는다"를 붙이기. 조각 0(깜깜한 사진)·조각 2(반쯤 열린 자원)에서 빠졌고 조각 3부터는 들어감. Day07 셀프 체크 다시 풀기에서 확인한다.
 - Day06: 예외를 잡는 층 세 개(반장 = 정리 후 `throw;`, 창구 = catch해서 튜플로 번역, ThreadException = 기록 후 종료)를 자기 말로. 1차 빈칸 ①을 "잡아서" 대신 "튜플"로 답함. Day07 백지 구조도, Day12 Task 예외 때 다시 확인한다.
 - Day06: `try`를 `for` 안/밖에 두는 차이(하나씩 처리 vs 전체 멈춤)와 `Stop`은 던지고 `Dispose`는 안 던지는 이유. Day09 자원 정리 때 MiniSight `DeviceBase.Dispose`(Stop이 던지면 같이 던짐)와 함께 다시 본다.

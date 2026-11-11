@@ -93,6 +93,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App\Bootstrapper.cs" />
+    <Compile Include="App\HealthMonitor.cs" />
+    <Compile Include="App\HealthSnapshot.cs" />
     <Compile Include="App\VisionSystem.cs" />
     <Compile Include="Config\CameraConfig.cs" />
     <Compile Include="Config\ConfigStore.cs" />

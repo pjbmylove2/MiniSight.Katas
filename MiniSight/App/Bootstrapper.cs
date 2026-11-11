@@ -13,5 +13,13 @@ namespace MiniSight.App
 
             return CameraFactory.Create(config.Kind, config.Name, config.Folder, config.IntervalMs);
         }
+
+        public static VisionSystem BuildSystem(string configPath)
+        {
+            IImageSource camera = BuildCamera(configPath);
+            IDevice light = new TestDevice("조명");
+            DeviceManager devices = new DeviceManager(new IDevice[] {light, camera});
+            return new VisionSystem(devices);
+        }
     }
 }

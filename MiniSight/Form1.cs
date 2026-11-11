@@ -4,6 +4,7 @@ using MiniSight.Devices;
 using OpenCvSharp;
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -12,9 +13,13 @@ namespace MiniSight
 {
     public partial class Form1 : Form
     {
+        private VisionSystem _system;
+        private HealthMonitor _health;
+
         public Form1()
         {
             InitializeComponent();
+            _health = new HealthMonitor(1000);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -302,6 +307,92 @@ namespace MiniSight
             camera2.FailOnStart = false;                                  // 고치기
             result = system.Start(CancellationToken.None);
             MessageBox.Show("다시 시작: " + result.ok + " / " + result.message);
+        }
+
+        private void button16_Click(object sender, EventArgs e)
+        {
+            if (_system == null)
+            {
+                string path = Path.Combine(Application.StartupPath, "camera-study.json");
+                try
+                {
+                    _system = Bootstrapper.BuildSystem(path);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("조립 실패: " + ex.Message);
+                    return;
+                }
+                _system.StateChanged += OnSystemStateChanged;
+            }
+
+            (bool ok, string message) result = _system.Initialize(CancellationToken.None);
+            if (!result.ok)
+            {
+                MessageBox.Show(result.message);
+            }
+        }
+
+        private void OnSystemStateChanged(object sender, StateChangedEventArgs e)
+        {
+            Text = "MiniSight - " + e.State + "/" + e.Mode + "/" + e.Status;
+        }
+
+        private void button17_Click(object sender, EventArgs e) // 시작
+        {
+            if (_system == null)
+            {
+                MessageBox.Show("먼저 준비를 누르세요.");
+                return;
+            }
+
+            (bool ok, string message) result = _system.Start(CancellationToken.None);
+            if (!result.ok)
+            {
+                MessageBox.Show(result.message);
+            }
+        }
+
+        private void button18_Click(object sender, EventArgs e) // 정지
+        {
+            if (_system == null)
+            {
+                MessageBox.Show("먼저 준비를 누르세요.");
+                return;
+            }
+
+            (bool ok, string message) result = _system.Stop();
+            if (!result.ok)
+            {
+                MessageBox.Show(result.message);
+            }
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+
+        }
+
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            if (_system != null)
+            {
+                _system.StateChanged -= OnSystemStateChanged;
+            }
+
+            _system?.Dispose();
+            _health?.Dispose();
+            base.OnFormClosed(e);
+        }
+
+        private void button19_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(_health.Latest.ToString());
         }
     }
 }

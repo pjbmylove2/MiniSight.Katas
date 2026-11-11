@@ -1,8 +1,6 @@
 ﻿using MiniSight.Devices;
 using System;
 using System.Threading;
-using static OpenCvSharp.Stitcher;
-using static System.Windows.Forms.AxHost;
 
 namespace MiniSight.App
 {
@@ -24,7 +22,7 @@ namespace MiniSight.App
         public VisionStatus Status { get; private set; }    
     }
 
-    public sealed class VisionSystem
+    public sealed class VisionSystem : IDisposable
     {
         private readonly DeviceManager _devices;
         private readonly object _sync = new object();
@@ -118,6 +116,19 @@ namespace MiniSight.App
             }
         }
 
+        public void Dispose()
+        {
+            lock (_sync)
+            {
+                if (State == VisionSystemState.Disposed)
+                {
+                    return;
+                }
+
+                _devices.Dispose();
+                ChangeState(VisionSystemState.Disposed, VisionMode.Manual, VisionStatus.Stop);
+            }
+        }
 
         private void ChangeState(VisionSystemState state, VisionMode mode, VisionStatus status)
         {
@@ -127,24 +138,24 @@ namespace MiniSight.App
             Status = status;
             Console.WriteLine("[시스템] " + previous + " -> " + state + "/" + mode + "/" + status);
 
-            //EventHandler<StateChangedEventArgs> handlers = StateChanged;
-            //if (handlers != null)
-            //{
-            //    return;
-            //}
+            EventHandler<StateChangedEventArgs> handlers = StateChanged;
+            if (handlers == null)
+            {
+                return;
+            }
 
-            //StateChangedEventArgs args = new StateChangedEventArgs(state, mode, status);
-            //foreach (EventHandler<StateChangedEventArgs> handler in handlers.GetInvocationList())
-            //{
-            //    try
-            //    {
-            //        handler(this, args);
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        Console.WriteLine("[시스템] 구독자 오류(무시하고 계속): " + ex.Message);
-            //    }
-            //}
+            StateChangedEventArgs args = new StateChangedEventArgs(state, mode, status);
+            foreach (EventHandler<StateChangedEventArgs> handler in handlers.GetInvocationList())
+            {
+                try
+                {
+                    handler(this, args);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("[시스템] 구독자 오류(무시하고 계속): " + ex.Message);
+                }
+            }
         }
     }
 

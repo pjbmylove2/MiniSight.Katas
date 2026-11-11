@@ -58,6 +58,7 @@
     <Compile Include="Basics\KataB12Bad.cs" />
     <Compile Include="Basics\KataB13.cs" />
     <Compile Include="Basics\KataB14.cs" />
+    <Compile Include="Concurrency\KataP01.cs" />
     <Compile Include="Day01\KataDay01.cs" />
     <Compile Include="Day02\KataDay02.cs" />
     <Compile Include="Day03\KataDay03.cs" />
@@ -65,6 +66,8 @@
     <Compile Include="Day04\KataDay04.cs" />
     <Compile Include="Day05\KataDay05.cs" />
     <Compile Include="Day06\KataDay06.cs" />
+    <Compile Include="Day08\KataDay08.cs" />
+    <Compile Include="Day09\KataDay09.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

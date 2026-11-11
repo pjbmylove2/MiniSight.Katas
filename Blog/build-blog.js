@@ -23,6 +23,8 @@ const SECTIONS = [
       codeDir: 'Katas/Basics', seriesName: 'C# 기초 체력', seriesLink: '/category/C%23/C%23%20%EA%B8%B0%EC%B4%88%20%EC%B2%B4%EB%A0%A5' },
     { id: 'junior', label: '2단계 · 주니어', series: 'C# 주니어', dir: 'Days', pattern: /^Day\d{2}\.md$/, enabled: true,
       idFromFile: true, onlyDone: true, tag: 'C#주니어', codeDir: 'Katas/{id}', seriesName: 'C# 주니어' },
+    { id: 'concurrency', label: '2.5단계 · 주말 특강', series: '멀티스레드 특강', dir: 'Concurrency', pattern: /^P\d{2}-.*\.md$/, enabled: true,
+      tag: '멀티스레드', codeDir: 'Katas/Concurrency', seriesName: '멀티스레드 특강' },
 ];
 
 function findCode(sec, id) {
