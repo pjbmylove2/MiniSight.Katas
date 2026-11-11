@@ -59,6 +59,9 @@
     <Compile Include="Basics\KataB13.cs" />
     <Compile Include="Basics\KataB14.cs" />
     <Compile Include="Concurrency\KataP01.cs" />
+    <Compile Include="Concurrency\KataP02.cs" />
+    <Compile Include="Concurrency\KataP03.cs" />
+    <Compile Include="Concurrency\KataP04.cs" />
     <Compile Include="Day01\KataDay01.cs" />
     <Compile Include="Day02\KataDay02.cs" />
     <Compile Include="Day03\KataDay03.cs" />

@@ -7,8 +7,7 @@ namespace Katas
     {
         static void Main(string[] args)
         {
-            KataP01.Run();
-            Console.ReadKey();
+            KataP04.Run();
         }
     }
 }
