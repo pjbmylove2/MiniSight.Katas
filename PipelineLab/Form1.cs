@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
@@ -12,6 +13,12 @@ namespace PipelineLab
         private ManualResetEvent _stop;     // 작업자에게 보낼 정지 신호
 
         private Bitmap _pendingPreview; // UI에 전달할 최신 사진 한 장
+
+        private int _capturedCount;
+        private BlockingCollection<Bitmap> _basket; // 사진기 → 검사 일꾼 바구니
+        private Thread _inspectorThread;            // 검사를 맡은 작업자
+        private int _okCount;
+        private int _ngCount;
 
         public Form1()
         {
@@ -28,16 +35,34 @@ namespace PipelineLab
 
             // 시작할 때마다 꺼진 상태의 새 정지 신호를 준비합니다.
             ManualResetEvent stop = new ManualResetEvent(false);
+            BlockingCollection<Bitmap> basket = new BlockingCollection<Bitmap>();
             Thread worker;
+            Thread inspector = null;
 
             try
             {
-                worker = new Thread(() => CaptureLoop(stop));
+                worker = new Thread(() => CaptureLoop(stop, basket));
                 worker.Name = "가짜 카메라";
+                inspector = new Thread(() => InspectLoop(basket));
+                inspector.Name = "검사 일꾼";
+
+                Interlocked.Exchange(ref _capturedCount, 0);
+                Interlocked.Exchange(ref _okCount, 0);
+                Interlocked.Exchange(ref _ngCount, 0);
+                lblFrameCount.Text = "촬영 수: 0";
+                ShowResult();
+
+                inspector.Start();
                 worker.Start();
             }
             catch (Exception ex)
             {
+                basket.CompleteAdding();   // 먼저 출발한 검사 일꾼이 있으면 퇴근시키기
+                if (inspector != null && inspector.IsAlive)
+                {
+                    inspector.Join();
+                }
+                basket.Dispose();
                 stop.Dispose();
                 lblStatus.Text = "시작 실패: " + ex.Message;
                 return;
@@ -45,17 +70,18 @@ namespace PipelineLab
 
             _cameraThread = worker;
             _stop = stop;
+            _inspectorThread = inspector;
+            _basket = basket;
             SetRunning(true);
         }
 
-        private void CaptureLoop(ManualResetEvent stop)
+        private void CaptureLoop(ManualResetEvent stop, BlockingCollection<Bitmap> basket)
         {
-
-            int frameNumber = 0;
-
             // 500ms가 지나면 한 장 촬영한 것으로 기록합니다.
             while (!stop.WaitOne(500))
             {
+                int frameNumber = Interlocked.Increment(ref _capturedCount);
+
                 using (Bitmap frame = new Bitmap(160, 120))
                 {
                     using (Graphics graphics = Graphics.FromImage(frame))
@@ -63,10 +89,15 @@ namespace PipelineLab
                         graphics.Clear(Color.White);
                         graphics.FillEllipse(Brushes.Blue, 45, 25, 70, 70);
 
-                        QueuePreview(frame);
+                        if (frameNumber % 3 == 0)
+                        {
+                            graphics.FillEllipse(Brushes.Black, 70, 50, 20, 20);
+                        }
                     }
 
-                    frameNumber++;
+                    QueuePreview(frame);
+                    basket.Add(new Bitmap(frame));
+
                     Color center = frame.GetPixel(80, 60);
                     bool isRed = center.ToArgb() == Color.Red.ToArgb();
 
@@ -104,8 +135,12 @@ namespace PipelineLab
                 return;
             }
 
-            _stop.Set();           // 정지 신호 보내기
-            _cameraThread.Join();  // 작업자 종료 기다리기
+            _stop.Set();               // 정지 신호 보내기
+            _cameraThread.Join();      // 사진기 종료 기다리기 → 이제 Add 없음
+            _basket.CompleteAdding();  // 바구니에 "끝" 알리기
+            _inspectorThread.Join();   // 남은 사과 다 검사하고 퇴근할 때까지
+            _basket.Dispose();
+            ShowResult();              // 마지막 검사까지 반영
 
             Interlocked.Exchange(ref _pendingPreview, null)?.Dispose();
             Image displayed = picPreview.Image;
@@ -116,6 +151,8 @@ namespace PipelineLab
 
             _cameraThread = null;
             _stop = null;
+            _inspectorThread = null;   // 추가
+            _basket = null;            // 추가
             SetRunning(false);
 
             Debug.WriteLine("메인: 정리 완료");
@@ -172,7 +209,32 @@ namespace PipelineLab
 
             Image previous = picPreview.Image;
             picPreview.Image = next;
+            lblFrameCount.Text = "촬영 수: " + Volatile.Read(ref _capturedCount);
             previous?.Dispose();
+        }
+
+        private void InspectLoop(BlockingCollection<Bitmap> basket)
+        {
+            foreach (Bitmap frame in basket.GetConsumingEnumerable())
+            {
+                using (frame)
+                {
+                    int bruise = AppleInspector.CountBruisePixels(frame);
+                    if (bruise > 0)
+                    {
+                        Interlocked.Increment(ref _ngCount);
+                    }
+                    else
+                    {
+                        Interlocked.Increment(ref _okCount);
+                    }
+                }
+            }
+        }
+
+        private void ShowResult()
+        {
+            lblResult.Text = "OK " + Volatile.Read(ref _okCount) + " / NG " + Volatile.Read(ref _ngCount);
         }
     }
 }

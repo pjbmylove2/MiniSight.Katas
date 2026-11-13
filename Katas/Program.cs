@@ -1,5 +1,4 @@
 ﻿using Katas.Concurrency;
-using System;
 
 namespace Katas
 {
@@ -7,7 +6,7 @@ namespace Katas
     {
         static void Main(string[] args)
         {
-            KataP04.Run();
+            KataP14.Run();
         }
     }
 }

@@ -32,11 +32,13 @@
             this.btnStop = new System.Windows.Forms.Button();
             this.lblStatus = new System.Windows.Forms.Label();
             this.picPreview = new System.Windows.Forms.PictureBox();
+            this.lblFrameCount = new System.Windows.Forms.Label();
+            this.lblResult = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picPreview)).BeginInit();
             this.SuspendLayout();
-            //
+            // 
             // btnStart
-            //
+            // 
             this.btnStart.Location = new System.Drawing.Point(12, 93);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(75, 23);
@@ -44,9 +46,9 @@
             this.btnStart.Text = "시작";
             this.btnStart.UseVisualStyleBackColor = true;
             this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
-            //
+            // 
             // btnStop
-            //
+            // 
             this.btnStop.Location = new System.Drawing.Point(108, 93);
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(75, 23);
@@ -54,30 +56,50 @@
             this.btnStop.Text = "정지";
             this.btnStop.UseVisualStyleBackColor = true;
             this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
-            //
+            // 
             // lblStatus
-            //
+            // 
             this.lblStatus.AutoSize = true;
             this.lblStatus.Location = new System.Drawing.Point(10, 78);
             this.lblStatus.Name = "lblStatus";
             this.lblStatus.Size = new System.Drawing.Size(29, 12);
             this.lblStatus.TabIndex = 2;
             this.lblStatus.Text = "정지";
-            //
+            // 
             // picPreview
-            //
+            // 
             this.picPreview.Location = new System.Drawing.Point(12, 12);
             this.picPreview.Name = "picPreview";
             this.picPreview.Size = new System.Drawing.Size(57, 57);
             this.picPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.picPreview.TabIndex = 3;
             this.picPreview.TabStop = false;
-            //
+            // 
+            // lblFrameCount
+            // 
+            this.lblFrameCount.AutoSize = true;
+            this.lblFrameCount.Location = new System.Drawing.Point(106, 78);
+            this.lblFrameCount.Name = "lblFrameCount";
+            this.lblFrameCount.Size = new System.Drawing.Size(59, 12);
+            this.lblFrameCount.TabIndex = 4;
+            this.lblFrameCount.Text = "촬영 수: 0";
+            // 
+            // lblResult
+            // 
+            this.lblResult.AutoSize = true;
+            this.lblResult.Location = new System.Drawing.Point(131, 28);
+            this.lblResult.Name = "lblResult";
+            this.lblResult.Size = new System.Drawing.Size(74, 12);
+            this.lblResult.TabIndex = 5;
+            this.lblResult.Text = "OK 0 / NG 0";
+            // 
             // Form1
-            //
+            // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(219, 135);
+            this.Controls.Add(this.lblResult);
+            this.Controls.Add(this.lblFrameCount);
             this.Controls.Add(this.picPreview);
             this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.btnStop);
@@ -96,5 +118,7 @@
         private System.Windows.Forms.Button btnStop;
         private System.Windows.Forms.Label lblStatus;
         private System.Windows.Forms.PictureBox picPreview;
+        private System.Windows.Forms.Label lblFrameCount;
+        private System.Windows.Forms.Label lblResult;
     }
 }
