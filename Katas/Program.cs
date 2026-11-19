@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            Katas.L0.D001.Run();
+            Katas.L0.D002.Run();
         }
     }
 }
