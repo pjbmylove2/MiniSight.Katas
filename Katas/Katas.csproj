@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{656F1AF2-C1BB-4026-A4A6-2A8FAA80AD78}</ProjectGuid>
+    <ProjectGuid>{058320F9-31EC-4179-AE6D-A9898BB1BC20}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>Katas</RootNamespace>
     <AssemblyName>Katas</AssemblyName>
@@ -43,12 +43,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="L0\D001.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

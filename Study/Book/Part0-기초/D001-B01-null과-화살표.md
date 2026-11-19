@@ -297,24 +297,147 @@ CAM1 / 노출 1200us
 
 1. 위 코드를 보면서 친다.
 2. 출력을 위 "전체 출력"과 글자·공백 단위로 비교한다. (`길이: 4`의 콜론 뒤 공백 1칸, `1200us` 사이 공백 없음)
-3. 파일 내용을 지우고 아래 뼈대만 보고 다시 친다. 막히면 키워드 표 → 원본의 그 한 줄만 본다. 본 줄은 기록에 적는다.
+3. **빈칸 채우기.** `D001.cs` 내용을 아래 문제로 바꾸고 `____` 자리만 채워 실행한다. 빈칸 바로 위 줄의 `// ①: …` 주석에 번호와 **그 자리에 들어갈 코드가 하는 일**이 적혀 있다. 그 일을 하는 C# 문법을 골라 쓴다(주석은 지우지 않는다). 빈칸 하나에 들어가는 것은 키워드 하나일 수도, 식 하나일 수도 있다. 막히면 키워드 표 → 그래도 막히면 정답에서 **그 번호만** 본다. 정답을 본 번호는 기록에 적는다(2개 이하 통과). 빈칸을 다 채우면 빌드되고 출력이 "전체 출력"과 같아야 한다.
 
 ```csharp
+using System;
+
 namespace Katas.L0
 {
     public static class D001
     {
-        public static void Run() { /* Chunk1~6 차례로 */ }
-        // [null, try/catch] 빈 이름의 Length → "비었나? True", "터짐: NullReferenceException"
-        // [?., int?] 빈 이름/CAM1 길이 → "길이 있음? False", "길이: 4"
-        // [??] 설정 없음 → "이름: 기본카메라", 모델 없음 → "모델 길이: -1"
-        // [=>] CAM1 1200 → "CAM1 / 노출 1200us", "2배 노출: 2400"
-        // [nameof] null 이름 → "빠진 값: name", "속성 이름: ExposureUs"
-        // [?. + ??] 카메라 배열 → "CAM1 / 노출 1200us", "카메라 없음"
+        public static void Run()
+        {
+            Chunk1();
+            Chunk2();
+            Chunk3();
+            Chunk4();
+            Chunk5();
+            Chunk6();
+        }
+
+        public static void Chunk1()
+        {
+            string cameraName = null;
+            Console.WriteLine("비었나? " + (cameraName == null));
+            try
+            {
+                Console.WriteLine(cameraName.Length);
+            }
+            // ①: null인 변수에 .을 찍었을 때 CLR이 던지는 예외의 형식 이름
+            catch (____ ex)
+            {
+                Console.WriteLine("터짐: " + ex.GetType().Name);
+            }
+        }
+
+        public static void Chunk2()
+        {
+            string cameraName = null;
+            // ② ③: ② null도 담을 수 있는 int 형식 / ③ cameraName이 null이면 Length를 부르지 않고 null을 돌려주는 연산자
+            ____ length = cameraName____Length;
+            // ④: int?에 값이 들어 있는지 true/false로 알려 주는 속성
+            Console.WriteLine("길이 있음? " + length.____);
+
+            cameraName = "CAM1";
+            length = cameraName?.Length;
+            Console.WriteLine("길이: " + length);
+        }
+
+        public static void Chunk3()
+        {
+            string fromConfig = null;
+            // ⑤: fromConfig가 null이면 오른쪽 글자를 대신 쓰게 하는 연산자
+            string name = fromConfig ____ "기본카메라";
+            Console.WriteLine("이름: " + name);
+
+            string model = null;
+            // ⑥: 왼쪽 결과가 null이면 -1로 바꿔서 int에 담기게 하는 연산자와 값 (변수 형식은 int 그대로)
+            int length = model?.Length ____;
+            Console.WriteLine("모델 길이: " + length);
+        }
+
+        public static void Chunk4()
+        {
+            Camera cam = new Camera("CAM1", 1200);
+            Console.WriteLine(cam.Info);
+            Console.WriteLine("2배 노출: " + cam.Double(cam.ExposureUs));
+        }
+
+        public static void Chunk5()
+        {
+            try
+            {
+                Camera cam = new Camera(null, 1000);
+            }
+            catch (ArgumentNullException ex)
+            {
+                // ⑪: 예외 안에 들어 있는, null이었던 매개변수의 이름
+                Console.WriteLine("빠진 값: " + ex.____);
+            }
+            // ⑫: Camera 클래스의 노출 시간 속성 (클래스이름.속성이름, 출력: ExposureUs)
+            Console.WriteLine("속성 이름: " + nameof(____));
+        }
+
+        public static void Chunk6()
+        {
+            Camera[] cameras = { new Camera("CAM1", 1200), null };
+            foreach (Camera cam in cameras)
+            {
+                // ⑬: cam이 null이면 Info를 부르지 않고, 그 null을 "카메라 없음"으로 바꾼다
+                string text = ____;
+                Console.WriteLine(text);
+            }
+        }
     }
-    // [{ get; }, =>, nameof] Camera 클래스: Name, ExposureUs, 생성자 null 검사, Info, Double
+
+    public class Camera
+    {
+        // ⑦: 생성자에서만 값을 넣을 수 있는 읽기 전용 자동 속성 (set 없음)
+        public string Name ____
+        public int ExposureUs { get; }
+
+        public Camera(string name, int exposureUs)
+        {
+            if (name == null)
+            {
+                // ⑧: "넘겨받은 인수가 null"이라는 뜻의 예외를 만든다. 괄호 안에는 매개변수 name의 이름을 글자로 (오타를 컴파일러가 잡는 방법)
+                throw new ____;
+            }
+            Name = name;
+            ExposureUs = exposureUs;
+        }
+
+        // ⑨: 읽을 때마다 오른쪽 식을 새로 계산하는 속성을 만드는 기호
+        public string Info ____ Name + " / 노출 " + ExposureUs + "us";
+
+        // ⑩: value를 2배 해서 돌려주는 식 하나짜리 몸통 (줄 끝 ; 까지)
+        public int Double(int value) ____
+    }
 }
 ```
+
+<details>
+<summary>빈칸 정답 (막힌 번호만 볼 것)</summary>
+
+| 번호 | 정답 | 핵심 |
+|---|---|---|
+| ① | `NullReferenceException` | null에 `.`을 찍으면 나는 예외 |
+| ② | `int?` | `?.`의 결과는 null일 수 있다 |
+| ③ | `?.` | null이면 멤버를 부르지 않는다 |
+| ④ | `HasValue` | `int?`에 값이 있나 |
+| ⑤ | `??` | 왼쪽이 null이면 오른쪽 |
+| ⑥ | `?? -1` | null을 -1로 바꿔 `int`로 좁힌다 |
+| ⑦ | `{ get; }` | 생성자에서만 넣는 읽기 전용 속성 |
+| ⑧ | `ArgumentNullException(nameof(name))` | 잘못된 인수는 입구에서 터뜨린다 |
+| ⑨ | `=>` | 읽을 때마다 계산하는 속성 |
+| ⑩ | `=> value * 2;` | 식 하나짜리 메서드 몸통 |
+| ⑪ | `ParamName` | null이었던 매개변수 이름 |
+| ⑫ | `Camera.ExposureUs` | 이름을 글자로, 컴파일러가 검사 |
+| ⑬ | `cam?.Info ?? "카메라 없음"` | null이면 묻지 않고 기본 글자로 |
+
+정답을 모두 넣으면 C# 7.3으로 컴파일되고 "전체 출력" 12줄과 같다(직접 확인함).
+</details>
 
 ## 6. 현장 연결
 
@@ -337,7 +460,7 @@ namespace Katas.L0
 2. 왼쪽부터: `a`가 null이 아니면 `a`, 아니면 `b`가 null이 아니면 `b`, 둘 다 null이면 `c`.
 3. `public int Area { get { return W * H; } }`
 4. 이름이 바뀌면 같이 바뀐다(거짓 메시지 방지), 오타가 컴파일 에러로 잡힌다.
-5. `Start()`를 부르기 전에 `Stop()`을 부르거나(타이머가 아직 null) `Stop()`을 두 번 부를 때 NullReferenceException. `_timer?.Dispose(); _timer = null;`
+5. `Start()`를 부르기 전에 `Stop()`을 부를 때(타이머가 아직 null) NullReferenceException. 고침: `_timer?.Dispose(); _timer = null;`. 참고: `Dispose()`를 두 번 부르는 것 자체는 안전하다(.NET 규약, 직접 실행해서 확인). 다만 `_timer = null;`을 넣은 뒤 `?.` 없이 두 번째 `Stop()`을 부르면 그때도 NRE가 난다. 그래서 `?.`와 `= null`은 짝으로 쓴다.
 </details>
 
 ### 면접 질문
@@ -357,8 +480,35 @@ namespace Katas.L0
 
 | 항목 | 내용 |
 |---|---|
-| 진행 날짜 | |
-| 조각 1~6 질문 답 | |
-| 3번째 타이핑에서 본 줄 | |
-| 지옥 대기열로 간 것 | |
-| 곁가지 질문 | |
+| 진행 날짜 | 2026-11-19 |
+| 결과 | △ 통과 (출력 12줄 일치, 빈칸 정답 본 것 2개, 대기열 14문제) |
+| 조각 1~6 질문 답 | 1 △ (형식 이름 없이 "에러") · 2 ✅ · 3 △ (`??`가 null을 바꾼다는 동작 빠짐) · 4 △ ("된대" — 저장 안 함·get 메서드 빠짐) · 5 △ (컴파일러가 문자열을 검사하지 않는다는 이유 빠짐) · 6 △ (무엇이 찍히는지 답하지 않음) |
+| 실험 | 1~4 ✅ · 5 실험 1은 처음에 실행하지 않고 보고 → 다시 해서 ✅ · 6 ✅. "예상 / 실제" 두 줄 형식은 4번 지적 |
+| 셀프 체크 | 1 ❌ (`n`과 `n.HasValue` 혼동) · 2 ✅ · 3 ❌ (속성을 메서드로 씀) · 4 △ (이유 1개만) · 5 ❌ (두 번 Dispose 시나리오 — 실제로는 안전) |
+| 면접 질문 | 1 △ (현장에 VS 없음 — 로그부터) · 2 ❌ · 3 ❌ (`int?`를 참조 형식이라고 답함) |
+| 빈칸에서 정답 본 개수 | 2개 (⑧ `ArgumentNullException`, ⑫ `nameof(Camera.ExposureUs)` 쉬운 설명) — 1차 제출 13개 중 9개, ⑥ ⑧ ⑫ ⑬ 다시 |
+| 지옥 대기열로 간 것 | 14문제 (PROGRESS 지옥 대기열 참고). ★ `int?`는 값 형식 |
+| 리뷰 힌트 (남김) | 파일 맨 위 쓰이지 않는 `using` 한 줄(VS 자동 추가) — 필요한지 직접 판단 |
+
+### 곁가지 질문
+
+> **Q. 따옴표 `"nmae"`로 바꿨는데 왜 CS0103이 났나?**
+> 답: 실험 2에서 바꾼 `nameof(nmae)` 줄이 그대로 남아 있었다. 따옴표 안 글자는 컴파일러가 검사하지 않아서 CS0103이 날 수 없다.
+> 확인 실험: 파일을 직접 열어 `nameof(nmae)`가 남은 것을 확인 → `"nmae"`로 바꾸자 빌드 성공, `빠진 값: nmae`.
+
+> **Q. `Stop()`을 두 번 불러 `Dispose()`가 두 번 되면 죽나?**
+> 답: 안 죽는다. `Dispose`는 여러 번 불려도 예외를 던지지 않는 것이 .NET 규약이다. 진짜 위험은 `Start` 전 `Stop`(타이머가 아직 null)이다.
+> 확인 실험: `System.Threading.Timer`로 Start→Stop→Stop은 정상, Start 없이 Stop은 NullReferenceException. (이 확인으로 셀프 체크 5번 정답 문장도 고쳤다.)
+
+> **Q. `Console.WriteLine`에 null 문자열을 넘기면?**
+> 답: 죽지 않고 빈 줄 하나를 찍는다. 그래서 `?.`만 쓰면 문제가 조용히 숨는다.
+> 확인 실험: `A`, null 문자열, `B`를 찍은 바이트가 `A \r\n \r\n B \r\n`.
+
+> **Q. `int?`는 참조 형식인가?**
+> 답: 아니다. `Nullable<int>` 구조체, 값 형식이다. "값 없음" 표시(`HasValue`)를 가진 값일 뿐이다.
+> 확인 실험: `typeof(int?).IsValueType` → `True`, 이름 `Nullable`1`. `int? a = 5; int? b = a; b = 9;` 후 `a=5 b=9`(복사됨).
+
+### 진행 방식 변경 (이 일차에서 결정)
+
+- 3번째 타이핑을 백지 재작성 → **빈칸 채우기**로 바꿨다. 빈칸은 `____`, 그 줄 바로 위에 `// ①: 그 자리 코드가 하는 일` 설명 주석을 단다. 정답 글자가 아니라 하는 일을 보고 문법을 고르게 한다.
+- 포트폴리오 저장소를 `C:\source\Katas`로 옮겼다(GitHub `main` 연결).
