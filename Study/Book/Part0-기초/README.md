@@ -12,7 +12,7 @@
 | 장 | 일차 | 주제 | 키워드 | 장 끝에 할 수 있는 것 | 지옥 레벨 |
 |---|---|---|---|---|---|
 | [B01](D001-B01-null과-화살표.md) | D001 | null과 화살표 | `null` `?.` `??` `=>` `nameof` | null 때문에 죽지 않는 코드, 한 줄 속성·메서드 | ★1 |
-| B02 | | 상속과 인터페이스 | `class` `interface` `abstract` `virtual` `override` `sealed` | 카메라 종류를 바꿔 끼우는 뼈대 | ★2 |
+| [B02](D002-B02-상속과-인터페이스.md) | D002 | 상속과 인터페이스 | `class` `interface` `abstract` `virtual` `override` `sealed` | 카메라 종류를 바꿔 끼우는 뼈대 | ★2 |
 | B03 | | 대리자와 람다 | `Action` `Func` `=>` 람다, 캡처 | "나중에 할 일"을 변수에 담기 | ★2 |
 | B04 | | 이벤트 | `event` `+=` `-=` `?.Invoke` | 카메라가 사진을 찍으면 알려 주기 | ★2 |
 | B05 | | 예외와 정리 | `try/catch/finally` `throw;` `using` `IDisposable` | 예외가 나도 자원을 반납하기 | ★3 |
